@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct WristwatchCacheApp: App {
@@ -13,5 +14,6 @@ struct WristwatchCacheApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Watch.self)
     }
 }
