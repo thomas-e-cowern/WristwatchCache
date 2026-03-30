@@ -18,8 +18,8 @@ struct BrandView: View {
             Text(brand)
                 .font(.title)
                 .foregroundColor(.white) // Color of the text
-                .padding(20) // Adds space between text and circle
-                .background(Color.blue) // Color of the circle
+                .padding(40) // Adds space between text and circle
+                .background(brandColor(for: brand)) // Color of the circle
                 .clipShape(Circle()) // Clips the background color to a circle shape
         }
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
