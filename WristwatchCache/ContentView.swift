@@ -19,12 +19,7 @@ struct ContentView: View {
             List {
                 ForEach(watches) { watch in
                     HStack {
-                        Text(watch.brand)
-                            .font(.title)
-                            .foregroundColor(.white) // Color of the text
-                            .padding(20) // Adds space between text and circle
-                            .background(Color.blue) // Color of the circle
-                            .clipShape(Circle()) // Clips the background color to a circle shape
+                        BrandView(brand: watch.brand)
                         Text(watch.model)
                             .font(.headline)
                     }
