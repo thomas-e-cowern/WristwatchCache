@@ -6,13 +6,36 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct WatchFavoritesView: View {
+    @Environment(\.modelContext) var modelContext
+    
+    @Query(filter: #Predicate<Watch> { watch in
+            watch.favorite == true
+    }, sort: \.brand) private var favoriteWatches: [Watch]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            VStack {
+                List {
+                    ForEach(favoriteWatches) { watch in
+                        HStack {
+                            BrandView(brand: watch.brand)
+                            Text(watch.model)
+                                .font(.headline)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Favorites")
+        }
     }
 }
 
 #Preview {
-    WatchFavoritesView()
+    let preview = PreviewContainer(Watch.self)
+    preview.addSamples(Watch.sampleData)
+    return WatchFavoritesView()
+        .modelContainer(preview.container)
 }
