@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct BrandView: View {
     
     var brand: String // Assume this is passed in, e.g., "Apple" or "Samsung"

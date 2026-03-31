@@ -20,10 +20,14 @@ struct WatchFavoritesView: View {
             VStack {
                 List {
                     ForEach(favoriteWatches) { watch in
-                        HStack {
-                            BrandView(brand: watch.brand)
-                            Text(watch.model)
-                                .font(.headline)
+                        NavigationLink {
+                            WatchDetailView(watch: watch)
+                        } label: {
+                            HStack {
+                                BrandView(brand: watch.brand)
+                                Text(watch.model)
+                                    .font(.headline)
+                            }
                         }
                     }
                 }
