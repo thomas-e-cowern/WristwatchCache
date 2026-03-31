@@ -14,17 +14,22 @@ struct BrandView: View {
     var brand: String // Assume this is passed in, e.g., "Apple" or "Samsung"
 
     var body: some View {
-        VStack {
-            Text(brand)
-                .font(.title)
-                .foregroundColor(.white) // Color of the text
-                .padding(40) // Adds space between text and circle
-                .background(brandColor(for: brand)) // Color of the circle
-                .clipShape(Circle()) // Clips the background color to a circle shape
+        Text(initials(for: brand))
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundColor(.white)
+            .frame(width: 44, height: 44)
+            .background(brandColor(for: brand))
+            .clipShape(Circle())
+    }
+
+    /// Returns 1–3 character initials from a brand name
+    func initials(for brand: String) -> String {
+        let words = brand.split(whereSeparator: { $0.isWhitespace || $0 == "-" || $0 == "\u{2011}" })
+        if words.count == 1 {
+            return String(words[0].prefix(1)).uppercased()
         }
-//        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .background(brandColor(for: brand))
-//        .ignoresSafeArea(.all) // Ensures the color fills the entire screen area
+        let result = words.prefix(3).map { String($0.prefix(1)) }.joined()
+        return result.uppercased()
     }
 
     // Function to return the correct Color based on the brand
@@ -109,5 +114,5 @@ struct BrandView: View {
 
 
 #Preview {
-    BrandView(brand: "Vaer")
+    BrandView(brand: "Jaeger‑LeCoultre")
 }

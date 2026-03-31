@@ -12,51 +12,24 @@ struct ContentView: View {
     
     @Environment(\.modelContext) var modelContext
     
-    @Query var watches: [Watch]
+    @State var selection: Int = 0
     
     var body: some View {
-        VStack {
-            List {
-                ForEach(watches) { watch in
-                    HStack {
-                        BrandView(brand: watch.brand)
-                        Text(watch.model)
-                            .font(.headline)
-                    }
-                }
+        TabView(selection: $selection) {
+            Tab("Watch List", systemImage: "list.dash", value: 0) {
+                WatchListView()
+            }
+            Tab("Favorites List", systemImage: "heart", value: 1) {
+                WatchFavoritesView()
             }
         }
     }
 }
 
 #Preview {
-    let preview = Preview(Watch.self)
+    let preview = PreviewContainer(Watch.self)
     preview.addSamples(Watch.sampleData)
     return ContentView()
         .modelContainer(preview.container)
 }
 
-import Foundation
-import SwiftData
-
-struct Preview {
-    let container: ModelContainer
-    
-    init(_ models: any PersistentModel.Type...) {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let schema = Schema(models)
-        do {
-            container = try ModelContainer(for: schema, configurations: config)
-        } catch {
-            fatalError("The preview container couldn't be created")
-        }
-    }
-    
-    func addSamples(_ watches: [Watch]) {
-        Task { @MainActor in
-            watches.forEach { watch in
-                container.mainContext.insert(watch)
-            }
-        }
-    }
-}
