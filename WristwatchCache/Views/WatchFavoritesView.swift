@@ -29,6 +29,11 @@ struct WatchFavoritesView: View {
                 }
             }
             .navigationTitle("Favorites")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    AddWatchButton()
+                }
+            }
         }
     }
 }

@@ -27,6 +27,11 @@ struct WatchListView: View {
                 }
             }
             .navigationTitle("Watch List")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    AddWatchButton()
+                }
+            }
         }
     }
 }
