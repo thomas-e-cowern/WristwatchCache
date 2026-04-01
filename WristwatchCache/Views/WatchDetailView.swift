@@ -18,8 +18,8 @@ struct WatchDetailView: View {
     // Editable copies of fields
     @State private var brand: String
     @State private var modelName: String
-    @State private var style: String
-    @State private var movement: String
+    @State private var style: Style
+    @State private var movement: Movement
 
     @State private var caseDiameterText: String
     @State private var lugWidthText: String
@@ -76,8 +76,16 @@ struct WatchDetailView: View {
             Section("Basic") {
                 TextField("Brand", text: $brand)
                 TextField("Model", text: $modelName)
-                TextField("Style", text: $style)
-                TextField("Movement", text: $movement)
+                Picker("Style", selection: $style) {
+                    ForEach(Style.allCases, id: \.self) { style in
+                        Text(style.rawValue).tag(style)
+                    }
+                }
+                Picker("Movement", selection: $movement) {
+                    ForEach(Movement.allCases, id: \.self) { movement in
+                        Text(movement.rawValue).tag(movement)
+                    }
+                }
             }
 
             Section("Size") {
@@ -219,8 +227,8 @@ struct WatchDetailView: View {
         // Apply edits back to the ObservedObject and save
         watch.brand = brand.trimmingCharacters(in: .whitespaces)
         watch.model = modelName.trimmingCharacters(in: .whitespaces)
-        watch.style = style.trimmingCharacters(in: .whitespaces)
-        watch.movement = movement.trimmingCharacters(in: .whitespaces)
+        watch.style = style
+        watch.movement = movement
         watch.caseDiameter = Double(caseDiameterText)
         watch.lugWidth = Double(lugWidthText)
         watch.hasBracelet = hasBracelet
