@@ -42,6 +42,7 @@ struct WatchDetailView: View {
 
     @State private var photoData: Data?
     @State private var photosPickerItems: [PhotosPickerItem] = []
+    @State private var showCamera = false
 
     @State private var favorite: Bool
 
@@ -172,23 +173,16 @@ struct WatchDetailView: View {
             }
 
             Section("Photo") {
-                HStack {
-                    if let data = photoData, let ui = UIImage(data: data) {
-                        Image(uiImage: ui)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 88, height: 88)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } else {
-                        Rectangle()
-                            .fill(Color.secondary.opacity(0.2))
-                            .frame(width: 88, height: 88)
-                            .overlay(Text("No Photo").font(.caption))
-                    }
+                if let data = photoData, let ui = UIImage(data: data) {
+                    Image(uiImage: ui)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
 
-                    PhotosPicker(selection: $photosPickerItems, matching: .images) {
-                        Text("Change photo")
-                    }
+                PhotosPicker(selection: $photosPickerItems, matching: .images) {
+                    Label("Choose from Library", systemImage: "photo.on.rectangle")
                 }
                 .onChange(of: photosPickerItems) {
                     guard let item = photosPickerItems.first else { return }
@@ -199,8 +193,20 @@ struct WatchDetailView: View {
                     }
                 }
 
+                Button {
+                    showCamera = true
+                } label: {
+                    Label("Take Photo", systemImage: "camera")
+                }
+                .sheet(isPresented: $showCamera) {
+                    CameraPicker { data in
+                        photoData = data
+                    }
+                    .ignoresSafeArea()
+                }
+
                 if photoData != nil {
-                    Button("Remove photo", role: .destructive) { photoData = nil }
+                    Button("Remove Photo", role: .destructive) { photoData = nil }
                 }
             }
 

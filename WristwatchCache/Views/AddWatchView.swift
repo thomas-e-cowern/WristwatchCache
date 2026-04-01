@@ -46,6 +46,7 @@ struct AddWatchView: View {
     // Photo (externalStorage)
     @State private var photoData: Data? = nil
     @State private var photosPickerItems: [PhotosPickerItem] = []
+    @State private var showCamera = false
 
     // Favorite
     @State private var favorite: Bool = false
@@ -136,18 +137,16 @@ struct AddWatchView: View {
                 }
 
                 Section("Photo") {
+                    if let data = photoData, let ui = UIImage(data: data) {
+                        Image(uiImage: ui)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
                     PhotosPicker(selection: $photosPickerItems, matching: .images, photoLibrary: .shared()) {
-                        HStack {
-                            Text("Select photo")
-                            Spacer()
-                            if photoData != nil {
-                                Image(uiImage: UIImage(data: photoData!)!)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                            }
-                        }
+                        Label("Choose from Library", systemImage: "photo.on.rectangle")
                     }
                     .onChange(of: photosPickerItems) {
                         guard let item = photosPickerItems.first else { return }
@@ -155,6 +154,24 @@ struct AddWatchView: View {
                             if let data = try? await item.loadTransferable(type: Data.self) {
                                 await MainActor.run { photoData = data }
                             }
+                        }
+                    }
+
+                    Button {
+                        showCamera = true
+                    } label: {
+                        Label("Take Photo", systemImage: "camera")
+                    }
+                    .sheet(isPresented: $showCamera) {
+                        CameraPicker { data in
+                            photoData = data
+                        }
+                        .ignoresSafeArea()
+                    }
+
+                    if photoData != nil {
+                        Button("Remove Photo", role: .destructive) {
+                            photoData = nil
                         }
                     }
                 }
