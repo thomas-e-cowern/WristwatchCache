@@ -12,24 +12,8 @@ struct WristStatsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Watch.brand) private var watches: [Watch]
 
-    private var totalWears: Int {
-        watches.reduce(0) { $0 + $1.datesWorn.count }
-    }
-
-    private var mostWorn: Watch? {
-        watches.max(by: { $0.datesWorn.count < $1.datesWorn.count })
-    }
-
-    private var neverWorn: [Watch] {
-        watches.filter { $0.datesWorn.isEmpty }
-    }
-
-    private var rankedByWear: [Watch] {
-        watches.sorted { $0.datesWorn.count > $1.datesWorn.count }
-    }
-
-    private func wornToday(_ watch: Watch) -> Bool {
-        watch.datesWorn.contains { Calendar.current.isDateInToday($0) }
+    private var stats: WatchStatistics {
+        WatchStatistics(watches: watches)
     }
 
     private func markWornToday(_ watch: Watch) {
@@ -43,12 +27,12 @@ struct WristStatsView: View {
                 // Collection overview
                 Section("Collection Overview") {
                     LabeledContent("Total Watches", value: "\(watches.count)")
-                    LabeledContent("Total Wears Logged", value: "\(totalWears)")
-                    LabeledContent("Never Worn", value: "\(neverWorn.count)")
+                    LabeledContent("Total Wears Logged", value: "\(stats.totalWears)")
+                    LabeledContent("Never Worn", value: "\(stats.neverWorn.count)")
                 }
 
                 // Most worn watch
-                if let top = mostWorn, top.datesWorn.count > 0 {
+                if let top = stats.mostWorn, top.datesWorn.count > 0 {
                     Section("Most Worn") {
                         HStack(spacing: 12) {
                             BrandView(brand: top.brand)
@@ -80,7 +64,7 @@ struct WristStatsView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            if wornToday(watch) {
+                            if stats.wornToday(watch) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                                     .font(.title3)
@@ -100,7 +84,7 @@ struct WristStatsView: View {
 
                 // Wear ranking
                 Section("Wear Ranking") {
-                    ForEach(Array(rankedByWear.enumerated()), id: \.element.id) { index, watch in
+                    ForEach(Array(stats.rankedByWear.enumerated()), id: \.element.id) { index, watch in
                         HStack(spacing: 12) {
                             Text("#\(index + 1)")
                                 .font(.headline)

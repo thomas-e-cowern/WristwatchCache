@@ -127,6 +127,11 @@ enum Style: String, Codable, CaseIterable {
 }
 
 extension Watch {
+    static func isValid(brand: String, model: String) -> Bool {
+        !brand.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !model.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     static var sampleData: [Watch] {
         return [
             Watch(brand: "Rolex", model: "Submariner Date 126610LN", style: .diver, movement: .automatic, caseDiameter: 41.0, lugWidth: 20.0, hasBracelet: true, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1680307200), watchStatus: .available, accuracy: -1.0, accuracyMethod: .timeGrapher, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1711776000), Date(timeIntervalSince1970: 1711862400)], favorite: false),

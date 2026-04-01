@@ -51,10 +51,8 @@ struct AddWatchView: View {
     // Favorite
     @State private var favorite: Bool = false
 
-    // Validation
     private var isValid: Bool {
-        !brand.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !modelName.trimmingCharacters(in: .whitespaces).isEmpty
+        Watch.isValid(brand: brand, model: modelName)
     }
 
     var body: some View {
