@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct CardView: View {
-    let image: Image      // pass in an Image (e.g., Image("photo") or Image(uiImage:...))
-    let brand: String     // first line of text
-    let model: String  // second line of text
-
+    let imageData: Data?   // pass image bytes (e.g., from network or file)
+    let brand: String
+    let model: String
+    
+    private var uiImage: UIImage? {
+        guard let data = imageData else { return nil }
+        return UIImage(data: data)
+    }
+    
+    
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
             
@@ -20,14 +26,17 @@ struct CardView: View {
                 Spacer()
                 
                 // Prominent image
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 180)
-                    .clipped()
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 4)
-
+                Group {
+                    if let img = uiImage {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        // Placeholder
+                        BrandView(brand: brand)
+                    }
+                }
+                
                 
                 Spacer()
                 
@@ -37,7 +46,7 @@ struct CardView: View {
                         .font(.headline)
                         .foregroundColor(.primary)
                         .lineLimit(1)
-
+                    
                     Text(model)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -68,11 +77,16 @@ struct CardView: View {
 
 // Preview / example usage
 struct CardView_Previews: PreviewProvider {
+    static var sampleImageData: Data? {
+        UIImage(systemName: "watch.analog")?
+            .pngData()
+    }
+    
     static var previews: some View {
         CardView(
-            image: Image(systemName: "watch.analog"),
-            brand: "Omega",
-            model: "Speedmaster"
+            imageData: sampleImageData,
+            brand: "Dan Henry",
+            model: "1946 Chronograph"
         )
         .padding()
         .previewLayout(.sizeThatFits)
