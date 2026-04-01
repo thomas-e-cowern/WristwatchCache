@@ -22,6 +22,9 @@ struct ContentView: View {
             Tab("Favorites List", systemImage: "heart", value: 1) {
                 WatchFavoritesView()
             }
+            Tab("Wrist Stats", systemImage: "chart.bar", value: 2) {
+                WristStatsView()
+            }
         }
     }
 }
