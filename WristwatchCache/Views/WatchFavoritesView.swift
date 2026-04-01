@@ -23,11 +23,7 @@ struct WatchFavoritesView: View {
                         NavigationLink {
                             WatchDetailView(watch: watch)
                         } label: {
-                            HStack {
-                                BrandView(brand: watch.brand)
-                                Text(watch.model)
-                                    .font(.headline)
-                            }
+                            WatchRowView(watch: watch)
                         }
                     }
                 }
