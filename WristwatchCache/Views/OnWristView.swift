@@ -13,6 +13,7 @@ struct OnWristView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Watch.brand) private var watches: [Watch]
     @State private var isChanging = false
+    @State private var showAddWatch = false
 
     private var todaysWatch: Watch? {
         watches.first { watch in
@@ -108,6 +109,24 @@ struct OnWristView: View {
                         WatchRowView(watch: watch)
                     }
                     .tint(.primary)
+                }
+            }
+            
+        }
+        .sheet(isPresented: $showAddWatch) {
+            AddWatchView()
+        }
+        .overlay {
+            VStack {
+                if watches.isEmpty {
+                    ContentUnavailableView {
+                        Label("No watches in your collection", systemImage: "watch.analog")
+                    } description: {
+                        Text("You haven't addad any watches yet.  Please click below to add one")
+                    } actions: {
+                        AddWatchButton()
+                            .buttonStyle(.borderedProminent)
+                    }
                 }
             }
         }
