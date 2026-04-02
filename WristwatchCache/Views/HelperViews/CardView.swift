@@ -11,6 +11,7 @@ struct CardView: View {
     let imageData: Data?   // pass image bytes (e.g., from network or file)
     let brand: String
     let model: String
+    var showWearButton: Bool = true
     
     private var uiImage: UIImage? {
         guard let data = imageData else { return nil }
@@ -56,16 +57,18 @@ struct CardView: View {
                 Spacer()
             }
             
-            Button(action: {
-                // More to come
-            }) {
-                Text("Wear Today")
-                    .font(.subheadline.bold())
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 14)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
+            if showWearButton {
+                Button(action: {
+                    // More to come
+                }) {
+                    Text("Wear Today")
+                        .font(.subheadline.bold())
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 14)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
             }
         }
         .padding()

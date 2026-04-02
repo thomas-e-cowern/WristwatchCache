@@ -12,6 +12,7 @@ struct OnWristView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Watch.brand) private var watches: [Watch]
+    @State private var isChanging = false
 
     private var todaysWatch: Watch? {
         watches.first { watch in
@@ -22,12 +23,13 @@ struct OnWristView: View {
     private func selectWatch(_ watch: Watch) {
         watch.datesWorn.append(Date())
         try? modelContext.save()
+        isChanging = false
     }
 
     var body: some View {
         NavigationStack {
             Group {
-                if let watch = todaysWatch {
+                if let watch = todaysWatch, !isChanging {
                     todaysWatchView(watch)
                 } else {
                     selectionView
@@ -45,7 +47,8 @@ struct OnWristView: View {
                 CardView(
                     imageData: watch.photo,
                     brand: watch.brand,
-                    model: watch.model
+                    model: watch.model,
+                    showWearButton: false
                 )
                 .padding(.horizontal)
 
@@ -58,6 +61,15 @@ struct OnWristView: View {
                     detailRow("Status", value: watch.watchStatus.rawValue)
                     detailRow("Times Worn", value: "\(watch.datesWorn.count)")
                 }
+                .padding(.horizontal)
+
+                Button {
+                    isChanging = true
+                } label: {
+                    Label("Change Watch", systemImage: "arrow.triangle.2.circlepath")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
                 .padding(.horizontal)
             }
             .padding(.vertical)
@@ -81,7 +93,9 @@ struct OnWristView: View {
     private var selectionView: some View {
         List {
             Section {
-                Text("No watch selected today. Tap one to put it on your wrist.")
+                Text(isChanging
+                     ? "Pick a different watch to wear today."
+                     : "No watch selected today. Tap one to put it on your wrist.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
