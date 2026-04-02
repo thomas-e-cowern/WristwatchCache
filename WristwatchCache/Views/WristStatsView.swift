@@ -106,7 +106,7 @@ struct WristStatsView: View {
                     }
                 }
             }
-            .navigationTitle("On Wrist")
+            .navigationTitle("Wrist Stats")
         }
     }
 }
