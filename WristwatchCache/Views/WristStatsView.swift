@@ -53,59 +53,82 @@ struct WristStatsView: View {
 
                 // Wore today quick log
                 Section("Log Today's Wear") {
-                    ForEach(watches) { watch in
-                        HStack(spacing: 12) {
-                            BrandView(brand: watch.brand)
-                            VStack(alignment: .leading) {
-                                Text(watch.brand)
-                                    .font(.headline)
-                                Text(watch.model)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            if stats.wornToday(watch) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
-                                    .font(.title3)
-                            } else {
-                                Button {
-                                    markWornToday(watch)
-                                } label: {
-                                    Text("Wore Today")
+                    if watches.isEmpty {
+                        ContentUnavailableView {
+                            Label("No watches in your collection", systemImage: "watch.analog")
+                        } description: {
+                            Text("You haven't addad any watches yet.  Please click below to add one")
+                        } actions: {
+                            AddWatchButton()
+                                .buttonStyle(.borderedProminent)
+                        }
+                    } else {
+                        ForEach(watches) { watch in
+                            HStack(spacing: 12) {
+                                BrandView(brand: watch.brand)
+                                VStack(alignment: .leading) {
+                                    Text(watch.brand)
+                                        .font(.headline)
+                                    Text(watch.model)
                                         .font(.caption)
+                                        .foregroundStyle(.secondary)
                                 }
-                                .buttonStyle(.bordered)
-                                .tint(.blue)
+                                Spacer()
+                                if stats.wornToday(watch) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                        .font(.title3)
+                                } else {
+                                    Button {
+                                        markWornToday(watch)
+                                    } label: {
+                                        Text("Wore Today")
+                                            .font(.caption)
+                                    }
+                                    .buttonStyle(.bordered)
+                                    .tint(.blue)
+                                }
                             }
                         }
                     }
                 }
+                
 
                 // Wear ranking
                 Section("Wear Ranking") {
-                    ForEach(Array(stats.rankedByWear.enumerated()), id: \.element.id) { index, watch in
-                        HStack(spacing: 12) {
-                            Text("#\(index + 1)")
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                                .frame(width: 30)
-                            BrandView(brand: watch.brand)
-                            VStack(alignment: .leading) {
-                                Text(watch.brand)
+                    if watches.count < 1 {
+                        ContentUnavailableView {
+                            Label("No watches in your collection", systemImage: "watch.analog")
+                        } description: {
+                            Text("You haven't addad any watches yet.  Please click below to add one")
+                        } actions: {
+                            AddWatchButton()
+                                .buttonStyle(.borderedProminent)
+                        }
+                    } else {
+                        ForEach(Array(stats.rankedByWear.enumerated()), id: \.element.id) { index, watch in
+                            HStack(spacing: 12) {
+                                Text("#\(index + 1)")
                                     .font(.headline)
-                                Text(watch.model)
-                                    .font(.caption)
                                     .foregroundStyle(.secondary)
+                                    .frame(width: 30)
+                                BrandView(brand: watch.brand)
+                                VStack(alignment: .leading) {
+                                    Text(watch.brand)
+                                        .font(.headline)
+                                    Text(watch.model)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Text("\(watch.datesWorn.count)")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.accentColor)
                             }
-                            Spacer()
-                            Text("\(watch.datesWorn.count)")
-                                .font(.headline)
-                                .foregroundStyle(Color.accentColor)
                         }
                     }
                 }
-            }
+            } // MARK: End of List
             .navigationTitle("Wrist Stats")
         }
     }
