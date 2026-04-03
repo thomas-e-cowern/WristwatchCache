@@ -13,8 +13,6 @@ struct WatchListView: View {
     
     @Query var watches: [Watch]
     
-    @State private var showAddWatch = false
-    
     var body: some View {
         NavigationStack {
             VStack {
@@ -27,19 +25,13 @@ struct WatchListView: View {
                         }
                     }
                 }
-                .sheet(isPresented: $showAddWatch) {
-                    AddWatchView()
-                }
                 .overlay {
                     VStack {
                         if watches.isEmpty {
                             ContentUnavailableView {
                                 Label("No watches in your collection", systemImage: "watch.analog")
                             } description: {
-                                Text("You haven't addad any watches yet.  Please click below to add one")
-                            } actions: {
-                                AddWatchButton()
-                                    .buttonStyle(.borderedProminent)
+                                Text("You haven't addad any watches yet.  Please click above to add one")
                             }
                         }
                     }
