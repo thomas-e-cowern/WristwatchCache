@@ -29,4 +29,8 @@ struct WatchStatistics {
     func wornToday(_ watch: Watch) -> Bool {
         watch.datesWorn.contains { Calendar.current.isDateInToday($0) }
     }
+
+    var todaysWatch: Watch? {
+        watches.first { wornToday($0) }
+    }
 }

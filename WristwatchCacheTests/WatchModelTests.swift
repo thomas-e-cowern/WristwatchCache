@@ -80,6 +80,56 @@ struct WatchModelTests {
         #expect(watch.favorite == true)
     }
 
+    @Test("Watch initializes with custom serial number")
+    func initWithSerialNumber() {
+        let watch = Watch(
+            brand: "Rolex", model: "Sub",
+            style: .diver, movement: .automatic,
+            serialNumber: "SN-12345-XYZ",
+            hasBracelet: true, watchStatus: .available,
+            accuracyMethod: .manual, datesWorn: []
+        )
+        #expect(watch.serialNumber == "SN-12345-XYZ")
+    }
+
+    @Test("Watch initializes with negative accuracy")
+    func initWithNegativeAccuracy() {
+        let watch = Watch(
+            brand: "Rolex", model: "Sub",
+            style: .diver, movement: .automatic,
+            hasBracelet: true, watchStatus: .available,
+            accuracy: -3.5,
+            accuracyMethod: .timeGrapher, datesWorn: []
+        )
+        #expect(watch.accuracy == -3.5)
+    }
+
+    @Test("Watch initializes with each style enum value")
+    func initWithVariousStyles() {
+        for style in Style.allCases {
+            let watch = Watch(
+                brand: "Test", model: "Watch",
+                style: style, movement: .automatic,
+                hasBracelet: false, watchStatus: .available,
+                accuracyMethod: .manual, datesWorn: []
+            )
+            #expect(watch.style == style)
+        }
+    }
+
+    @Test("Watch initializes with each movement enum value")
+    func initWithVariousMovements() {
+        for movement in Movement.allCases {
+            let watch = Watch(
+                brand: "Test", model: "Watch",
+                style: .dress, movement: movement,
+                hasBracelet: false, watchStatus: .available,
+                accuracyMethod: .manual, datesWorn: []
+            )
+            #expect(watch.movement == movement)
+        }
+    }
+
     // MARK: - SwiftData Persistence
 
     @Test("Watch persists to in-memory container and can be fetched")
@@ -121,6 +171,8 @@ struct WatchModelTests {
         watch.model = "Snowflake"
         watch.favorite = true
         watch.watchStatus = .needsService
+        watch.style = .dress
+        watch.movement = .springDrive
         try context.save()
 
         let descriptor = FetchDescriptor<Watch>()
@@ -129,6 +181,8 @@ struct WatchModelTests {
         #expect(fetched.first?.model == "Snowflake")
         #expect(fetched.first?.favorite == true)
         #expect(fetched.first?.watchStatus == .needsService)
+        #expect(fetched.first?.style == .dress)
+        #expect(fetched.first?.movement == .springDrive)
     }
 
     @Test("Watch can be deleted from context")
@@ -176,6 +230,73 @@ struct WatchModelTests {
         #expect(fetched.first?.datesWorn.count == 2)
     }
 
+    @Test("Favorite can be toggled and persisted")
+    func toggleFavorite() throws {
+        let container = try TestModelContainer.make()
+        let context = container.mainContext
+
+        let watch = Watch(
+            brand: "Omega", model: "Speedmaster",
+            style: .chronograph, movement: .automatic,
+            hasBracelet: true, watchStatus: .available,
+            accuracyMethod: .manual, datesWorn: [],
+            favorite: false
+        )
+        context.insert(watch)
+        try context.save()
+        #expect(watch.favorite == false)
+
+        watch.favorite = true
+        try context.save()
+
+        let descriptor = FetchDescriptor<Watch>()
+        let fetched = try context.fetch(descriptor)
+        #expect(fetched.first?.favorite == true)
+    }
+
+    @Test("Style and movement enums persist through SwiftData")
+    func enumPersistence() throws {
+        let container = try TestModelContainer.make()
+        let context = container.mainContext
+
+        let watch = Watch(
+            brand: "IWC", model: "Big Pilot",
+            style: .pilot, movement: .handWound,
+            hasBracelet: false, watchStatus: .inService,
+            accuracyMethod: .timeGrapher, datesWorn: []
+        )
+        context.insert(watch)
+        try context.save()
+
+        let descriptor = FetchDescriptor<Watch>()
+        let fetched = try context.fetch(descriptor)
+        #expect(fetched.first?.style == .pilot)
+        #expect(fetched.first?.movement == .handWound)
+        #expect(fetched.first?.watchStatus == .inService)
+        #expect(fetched.first?.accuracyMethod == .timeGrapher)
+    }
+
+    @Test("Multiple watches can be inserted and fetched")
+    func multipleWatches() throws {
+        let container = try TestModelContainer.make()
+        let context = container.mainContext
+
+        for i in 1...5 {
+            let watch = Watch(
+                brand: "Brand\(i)", model: "Model\(i)",
+                style: .dress, movement: .automatic,
+                hasBracelet: false, watchStatus: .available,
+                accuracyMethod: .manual, datesWorn: []
+            )
+            context.insert(watch)
+        }
+        try context.save()
+
+        let descriptor = FetchDescriptor<Watch>()
+        let fetched = try context.fetch(descriptor)
+        #expect(fetched.count == 5)
+    }
+
     // MARK: - Sample Data
 
     @Test("Sample data contains 20 watches")
@@ -197,5 +318,17 @@ struct WatchModelTests {
         let descriptor = FetchDescriptor<Watch>()
         let fetched = try container.mainContext.fetch(descriptor)
         #expect(fetched.count == 20)
+    }
+
+    @Test("Sample data contains watches with favorites")
+    func sampleDataHasFavorites() {
+        let favorites = Watch.sampleData.filter { $0.favorite }
+        #expect(favorites.count > 0)
+    }
+
+    @Test("Sample data contains watches with various statuses")
+    func sampleDataHasVariousStatuses() {
+        let statuses = Set(Watch.sampleData.map { $0.watchStatus })
+        #expect(statuses.count > 1)
     }
 }

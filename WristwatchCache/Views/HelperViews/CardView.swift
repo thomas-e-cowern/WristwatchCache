@@ -22,7 +22,7 @@ struct CardView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 12) {
             
-            HStack {
+            VStack {
                 
                 Spacer()
                 
@@ -42,7 +42,7 @@ struct CardView: View {
                 Spacer()
                 
                 // Text block
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .center, spacing: 4) {
                     Text(brand)
                         .font(.headline)
                         .foregroundColor(.primary)

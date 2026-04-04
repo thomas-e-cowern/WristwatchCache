@@ -16,12 +16,14 @@ struct OnWristView: View {
     @State private var showAddWatch = false
 
     private var todaysWatch: Watch? {
-        watches.first { watch in
-            watch.datesWorn.contains { Calendar.current.isDateInToday($0) }
-        }
+        WatchStatistics(watches: watches).todaysWatch
     }
 
     private func selectWatch(_ watch: Watch) {
+        // Remove today's date from the previously selected watch
+        if let previous = todaysWatch, previous.persistentModelID != watch.persistentModelID {
+            previous.datesWorn.removeAll { Calendar.current.isDateInToday($0) }
+        }
         watch.datesWorn.append(Date())
         try? modelContext.save()
         isChanging = false
