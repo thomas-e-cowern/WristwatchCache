@@ -26,6 +26,42 @@ struct WristStatsLogicTests {
         )
     }
 
+    /// Helper to create a date N days ago from today
+    private func daysAgo(_ n: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: -n, to: Date())!
+    }
+
+    // MARK: - wearCount
+
+    @Test("wearCount returns 0 for empty datesWorn")
+    func wearCountEmpty() {
+        let watch = makeWatch()
+        #expect(WatchStatistics.wearCount(for: watch) == 0)
+    }
+
+    @Test("wearCount counts unique calendar days")
+    func wearCountUniqueDays() {
+        let watch = makeWatch(datesWorn: [daysAgo(1), daysAgo(2), daysAgo(3)])
+        #expect(WatchStatistics.wearCount(for: watch) == 3)
+    }
+
+    @Test("wearCount deduplicates multiple entries on the same day")
+    func wearCountDeduplicates() {
+        let today = Date()
+        let alsoToday = Date().addingTimeInterval(60)
+        let watch = makeWatch(datesWorn: [today, alsoToday, daysAgo(1)])
+        #expect(WatchStatistics.wearCount(for: watch) == 2)
+    }
+
+    @Test("wearCount returns 1 when all entries are the same day")
+    func wearCountAllSameDay() {
+        let t1 = Date()
+        let t2 = Date().addingTimeInterval(30)
+        let t3 = Date().addingTimeInterval(60)
+        let watch = makeWatch(datesWorn: [t1, t2, t3])
+        #expect(WatchStatistics.wearCount(for: watch) == 1)
+    }
+
     // MARK: - totalWears
 
     @Test("totalWears returns 0 for empty collection")
@@ -34,12 +70,11 @@ struct WristStatsLogicTests {
         #expect(stats.totalWears == 0)
     }
 
-    @Test("totalWears sums all datesWorn counts")
+    @Test("totalWears sums unique wear days across watches")
     func totalWearsSum() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(datesWorn: [past, past]),
-            makeWatch(datesWorn: [past]),
+            makeWatch(datesWorn: [daysAgo(1), daysAgo(2)]),
+            makeWatch(datesWorn: [daysAgo(3)]),
             makeWatch(datesWorn: []),
         ]
         let stats = WatchStatistics(watches: watches)
@@ -53,12 +88,20 @@ struct WristStatsLogicTests {
         #expect(stats.totalWears == 0)
     }
 
-    @Test("totalWears works with single watch")
+    @Test("totalWears counts unique days per watch")
     func totalWearsSingle() {
-        let past = Date(timeIntervalSince1970: 1000000)
-        let watches = [makeWatch(datesWorn: [past, past, past])]
+        let watches = [makeWatch(datesWorn: [daysAgo(1), daysAgo(2), daysAgo(3)])]
         let stats = WatchStatistics(watches: watches)
         #expect(stats.totalWears == 3)
+    }
+
+    @Test("totalWears deduplicates same-day entries")
+    func totalWearsDeduplicates() {
+        let today = Date()
+        let alsoToday = Date().addingTimeInterval(60)
+        let watches = [makeWatch(datesWorn: [today, alsoToday])]
+        let stats = WatchStatistics(watches: watches)
+        #expect(stats.totalWears == 1)
     }
 
     // MARK: - mostWorn
@@ -69,13 +112,12 @@ struct WristStatsLogicTests {
         #expect(stats.mostWorn == nil)
     }
 
-    @Test("mostWorn returns watch with most dates worn")
+    @Test("mostWorn returns watch with most unique days worn")
     func mostWornFindsMax() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(brand: "One", datesWorn: [past]),
-            makeWatch(brand: "Winner", datesWorn: [past, past, past]),
-            makeWatch(brand: "Two", datesWorn: [past, past]),
+            makeWatch(brand: "One", datesWorn: [daysAgo(1)]),
+            makeWatch(brand: "Winner", datesWorn: [daysAgo(1), daysAgo(2), daysAgo(3)]),
+            makeWatch(brand: "Two", datesWorn: [daysAgo(1), daysAgo(2)]),
         ]
         let stats = WatchStatistics(watches: watches)
         #expect(stats.mostWorn?.brand == "Winner")
@@ -85,26 +127,35 @@ struct WristStatsLogicTests {
     func mostWornAllZero() {
         let watches = [makeWatch(brand: "A"), makeWatch(brand: "B")]
         let stats = WatchStatistics(watches: watches)
-        // max(by:) returns last element when all are equal, but we just check it's non-nil
         #expect(stats.mostWorn != nil)
     }
 
     @Test("mostWorn works with single watch")
     func mostWornSingle() {
-        let past = Date(timeIntervalSince1970: 1000000)
-        let watch = makeWatch(brand: "Only", datesWorn: [past])
+        let watch = makeWatch(brand: "Only", datesWorn: [daysAgo(1)])
         let stats = WatchStatistics(watches: [watch])
         #expect(stats.mostWorn?.brand == "Only")
+    }
+
+    @Test("mostWorn ignores duplicate same-day entries")
+    func mostWornDeduplicates() {
+        let today = Date()
+        let alsoToday = Date().addingTimeInterval(60)
+        let watches = [
+            makeWatch(brand: "Inflated", datesWorn: [today, alsoToday, alsoToday]),
+            makeWatch(brand: "Real", datesWorn: [daysAgo(1), daysAgo(2)]),
+        ]
+        let stats = WatchStatistics(watches: watches)
+        #expect(stats.mostWorn?.brand == "Real")
     }
 
     // MARK: - neverWorn
 
     @Test("neverWorn returns empty when all watches have been worn")
     func neverWornAllWorn() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(datesWorn: [past]),
-            makeWatch(datesWorn: [past]),
+            makeWatch(datesWorn: [daysAgo(1)]),
+            makeWatch(datesWorn: [daysAgo(2)]),
         ]
         let stats = WatchStatistics(watches: watches)
         #expect(stats.neverWorn.isEmpty)
@@ -112,11 +163,10 @@ struct WristStatsLogicTests {
 
     @Test("neverWorn filters watches with empty datesWorn")
     func neverWornFilters() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(brand: "Worn", datesWorn: [past]),
+            makeWatch(brand: "Worn", datesWorn: [daysAgo(1)]),
             makeWatch(brand: "Unworn"),
-            makeWatch(brand: "AlsoWorn", datesWorn: [past]),
+            makeWatch(brand: "AlsoWorn", datesWorn: [daysAgo(2)]),
         ]
         let stats = WatchStatistics(watches: watches)
         #expect(stats.neverWorn.count == 1)
@@ -138,13 +188,12 @@ struct WristStatsLogicTests {
 
     // MARK: - rankedByWear
 
-    @Test("rankedByWear sorts descending by wear count")
+    @Test("rankedByWear sorts descending by unique wear days")
     func rankedDescending() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(brand: "One", datesWorn: [past]),
-            makeWatch(brand: "Three", datesWorn: [past, past, past]),
-            makeWatch(brand: "Two", datesWorn: [past, past]),
+            makeWatch(brand: "One", datesWorn: [daysAgo(1)]),
+            makeWatch(brand: "Three", datesWorn: [daysAgo(1), daysAgo(2), daysAgo(3)]),
+            makeWatch(brand: "Two", datesWorn: [daysAgo(1), daysAgo(2)]),
         ]
         let stats = WatchStatistics(watches: watches)
         let ranked = stats.rankedByWear
@@ -161,9 +210,8 @@ struct WristStatsLogicTests {
 
     @Test("rankedByWear includes watches with zero wears at the end")
     func rankedIncludesZeroWears() {
-        let past = Date(timeIntervalSince1970: 1000000)
         let watches = [
-            makeWatch(brand: "Worn", datesWorn: [past]),
+            makeWatch(brand: "Worn", datesWorn: [daysAgo(1)]),
             makeWatch(brand: "Unworn"),
         ]
         let stats = WatchStatistics(watches: watches)
@@ -183,8 +231,7 @@ struct WristStatsLogicTests {
 
     @Test("wornToday returns false when only past dates are in datesWorn")
     func wornTodayFalse() {
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-        let watch = makeWatch(datesWorn: [yesterday])
+        let watch = makeWatch(datesWorn: [daysAgo(1)])
         let stats = WatchStatistics(watches: [watch])
         #expect(stats.wornToday(watch) == false)
     }
@@ -198,9 +245,7 @@ struct WristStatsLogicTests {
 
     @Test("wornToday returns true when today is mixed with past dates")
     func wornTodayMixed() {
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-        let lastWeek = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-        let watch = makeWatch(datesWorn: [lastWeek, yesterday, Date()])
+        let watch = makeWatch(datesWorn: [daysAgo(7), daysAgo(1), Date()])
         let stats = WatchStatistics(watches: [watch])
         #expect(stats.wornToday(watch) == true)
     }
@@ -215,9 +260,8 @@ struct WristStatsLogicTests {
 
     @Test("todaysWatch returns nil when no watch worn today")
     func todaysWatchNoneWorn() {
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
         let watches = [
-            makeWatch(brand: "A", datesWorn: [yesterday]),
+            makeWatch(brand: "A", datesWorn: [daysAgo(1)]),
             makeWatch(brand: "B", datesWorn: []),
         ]
         let stats = WatchStatistics(watches: watches)
@@ -226,9 +270,8 @@ struct WristStatsLogicTests {
 
     @Test("todaysWatch returns the watch worn today")
     func todaysWatchFindsToday() {
-        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
         let watches = [
-            makeWatch(brand: "Yesterday", datesWorn: [yesterday]),
+            makeWatch(brand: "Yesterday", datesWorn: [daysAgo(1)]),
             makeWatch(brand: "Today", datesWorn: [Date()]),
             makeWatch(brand: "Never"),
         ]
@@ -236,13 +279,29 @@ struct WristStatsLogicTests {
         #expect(stats.todaysWatch?.brand == "Today")
     }
 
-    @Test("todaysWatch returns first watch when multiple worn today")
-    func todaysWatchMultiple() {
+    @Test("todaysWatch returns the most recently selected watch when multiple worn today")
+    func todaysWatchMostRecent() {
+        let earlier = Date().addingTimeInterval(-3600)
+        let later = Date()
         let watches = [
-            makeWatch(brand: "First", datesWorn: [Date()]),
-            makeWatch(brand: "Second", datesWorn: [Date()]),
+            makeWatch(brand: "Earlier", datesWorn: [earlier]),
+            makeWatch(brand: "Later", datesWorn: [later]),
         ]
         let stats = WatchStatistics(watches: watches)
-        #expect(stats.todaysWatch?.brand == "First")
+        #expect(stats.todaysWatch?.brand == "Later")
+    }
+
+    @Test("todaysWatch picks watch with latest timestamp when both worn today")
+    func todaysWatchSwitchScenario() {
+        // Simulates: select A, then switch to B
+        // A was selected first (earlier timestamp), B selected after (later timestamp)
+        let firstSelection = Date().addingTimeInterval(-600)
+        let secondSelection = Date()
+        let watches = [
+            makeWatch(brand: "WatchA", datesWorn: [daysAgo(1), daysAgo(2), firstSelection]),
+            makeWatch(brand: "WatchB", datesWorn: [secondSelection]),
+        ]
+        let stats = WatchStatistics(watches: watches)
+        #expect(stats.todaysWatch?.brand == "WatchB")
     }
 }
