@@ -14,6 +14,7 @@ struct OnWristView: View {
     @Query(sort: \Watch.brand) private var watches: [Watch]
     @State private var isChanging = false
     @State private var showAddWatch = false
+    @State private var searchText: String = ""
 
     private var todaysWatch: Watch? {
         WatchStatistics(watches: watches).todaysWatch
@@ -35,6 +36,17 @@ struct OnWristView: View {
                 }
             }
             .navigationTitle("On Your Wrist")
+        }
+       
+    }
+    
+    var searchResults: [Watch] {
+        if searchText.isEmpty {
+            return watches
+        } else {
+            return watches.filter {
+                $0.brand.localizedStandardContains(searchText) || $0.model.localizedStandardContains(searchText)
+            }
         }
     }
 
@@ -100,7 +112,7 @@ struct OnWristView: View {
             }
 
             Section("Your Collection") {
-                ForEach(watches) { watch in
+                ForEach(searchResults) { watch in
                     Button {
                         selectWatch(watch)
                     } label: {
@@ -109,8 +121,8 @@ struct OnWristView: View {
                     .tint(.primary)
                 }
             }
-            
         }
+        .searchable(text: $searchText)
         .sheet(isPresented: $showAddWatch) {
             AddWatchView()
         }
