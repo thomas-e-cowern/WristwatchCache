@@ -10,12 +10,18 @@ import Foundation
 struct WatchStatistics {
     let watches: [Watch]
 
+    /// Number of unique calendar days a watch has been worn
+    static func wearCount(for watch: Watch) -> Int {
+        let uniqueDays = Set(watch.datesWorn.map { Calendar.current.startOfDay(for: $0) })
+        return uniqueDays.count
+    }
+
     var totalWears: Int {
-        watches.reduce(0) { $0 + $1.datesWorn.count }
+        watches.reduce(0) { $0 + Self.wearCount(for: $1) }
     }
 
     var mostWorn: Watch? {
-        watches.max(by: { $0.datesWorn.count < $1.datesWorn.count })
+        watches.max(by: { Self.wearCount(for: $0) < Self.wearCount(for: $1) })
     }
 
     var neverWorn: [Watch] {
@@ -23,14 +29,17 @@ struct WatchStatistics {
     }
 
     var rankedByWear: [Watch] {
-        watches.sorted { $0.datesWorn.count > $1.datesWorn.count }
+        watches.sorted { Self.wearCount(for: $0) > Self.wearCount(for: $1) }
     }
 
     func wornToday(_ watch: Watch) -> Bool {
         watch.datesWorn.contains { Calendar.current.isDateInToday($0) }
     }
 
+    /// The most recently selected watch worn today, based on timestamp
     var todaysWatch: Watch? {
-        watches.first { wornToday($0) }
+        watches
+            .filter { wornToday($0) }
+            .max(by: { ($0.datesWorn.last ?? .distantPast) < ($1.datesWorn.last ?? .distantPast) })
     }
 }

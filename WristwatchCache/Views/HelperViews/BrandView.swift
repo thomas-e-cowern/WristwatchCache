@@ -12,16 +12,16 @@ struct BrandView: View {
     var brand: String // Assume this is passed in, e.g., "Apple" or "Samsung"
 
     var body: some View {
-        Text(initials(for: brand))
+        Text(Self.initials(for: brand))
             .font(.system(size: 18, weight: .bold, design: .rounded))
             .foregroundColor(.white)
             .frame(width: 44, height: 44)
-            .background(brandColor(for: brand))
+            .background(Self.brandColor(for: brand))
             .clipShape(Circle())
     }
 
     /// Returns 1–3 character initials from a brand name
-    func initials(for brand: String) -> String {
+    static func initials(for brand: String) -> String {
         let words = brand.split(whereSeparator: { $0.isWhitespace || $0 == "-" || $0 == "\u{2011}" })
         if words.count == 1 {
             return String(words[0].prefix(1)).uppercased()
@@ -31,7 +31,7 @@ struct BrandView: View {
     }
 
     // Function to return the correct Color based on the brand
-    func brandColor(for brand: String) -> Color {
+    static func brandColor(for brand: String) -> Color {
         switch brand {
             // Major luxury & mainstream
             case "Rolex": return Color(red: 0.0/255, green: 96.0/255, blue: 57.0/255)    // #006039 (green)

@@ -9,16 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct WristStatsView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query(sort: \Watch.brand) private var watches: [Watch]
 
     private var stats: WatchStatistics {
         WatchStatistics(watches: watches)
-    }
-
-    private func markWornToday(_ watch: Watch) {
-        watch.datesWorn.append(Date())
-        try? modelContext.save()
     }
 
     var body: some View {
@@ -32,7 +26,7 @@ struct WristStatsView: View {
                 }
 
                 // Most worn watch
-                if let top = stats.mostWorn, top.datesWorn.count > 0 {
+                if let top = stats.mostWorn, WatchStatistics.wearCount(for: top) > 0 {
                     Section("Most Worn") {
                         HStack(spacing: 12) {
                             BrandView(brand: top.brand)
@@ -44,26 +38,21 @@ struct WristStatsView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Text("\(top.datesWorn.count)")
+                            Text("\(WatchStatistics.wearCount(for: top))")
                                 .font(.title2.bold())
                                 .foregroundStyle(Color.accentColor)
                         }
                     }
                 }
 
-                // Wore today quick log
-                Section("Log Today's Wear") {
-                    if watches.isEmpty {
-                        ContentUnavailableView {
-                            Label("No watches in your collection", systemImage: "watch.analog")
-                        } description: {
-                            Text("You haven't addad any watches yet.  Please click below to add one")
-                        } actions: {
-                            AddWatchButton()
-                                .buttonStyle(.borderedProminent)
-                        }
+                // Watches worn today
+                Section("Worn Today") {
+                    let wornToday = watches.filter { stats.wornToday($0) }
+                    if wornToday.isEmpty {
+                        Text("No watches worn today")
+                            .foregroundStyle(.secondary)
                     } else {
-                        ForEach(watches) { watch in
+                        ForEach(wornToday) { watch in
                             HStack(spacing: 12) {
                                 BrandView(brand: watch.brand)
                                 VStack(alignment: .leading) {
@@ -74,20 +63,9 @@ struct WristStatsView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                if stats.wornToday(watch) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(.green)
-                                        .font(.title3)
-                                } else {
-                                    Button {
-                                        markWornToday(watch)
-                                    } label: {
-                                        Text("Wore Today")
-                                            .font(.caption)
-                                    }
-                                    .buttonStyle(.bordered)
-                                    .tint(.blue)
-                                }
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                    .font(.title3)
                             }
                         }
                     }
@@ -121,7 +99,7 @@ struct WristStatsView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                Text("\(watch.datesWorn.count)")
+                                Text("\(WatchStatistics.wearCount(for: watch))")
                                     .font(.headline)
                                     .foregroundStyle(Color.accentColor)
                             }

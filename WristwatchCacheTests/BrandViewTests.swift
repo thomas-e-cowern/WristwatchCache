@@ -13,45 +13,43 @@ import SwiftUI
 @Suite("BrandView Logic Tests")
 struct BrandViewTests {
 
-    private let view = BrandView(brand: "")
-
     // MARK: - initials(for:)
 
     @Test("Single word brand returns first character uppercased")
     func singleWordInitials() {
-        #expect(view.initials(for: "Rolex") == "R")
-        #expect(view.initials(for: "Omega") == "O")
-        #expect(view.initials(for: "Tudor") == "T")
+        #expect(BrandView.initials(for: "Rolex") == "R")
+        #expect(BrandView.initials(for: "Omega") == "O")
+        #expect(BrandView.initials(for: "Tudor") == "T")
     }
 
     @Test("Two word brand returns two initials")
     func twoWordInitials() {
-        #expect(view.initials(for: "Grand Seiko") == "GS")
-        #expect(view.initials(for: "TAG Heuer") == "TH")
-        #expect(view.initials(for: "Dan Henry") == "DH")
-        #expect(view.initials(for: "Patek Philippe") == "PP")
+        #expect(BrandView.initials(for: "Grand Seiko") == "GS")
+        #expect(BrandView.initials(for: "TAG Heuer") == "TH")
+        #expect(BrandView.initials(for: "Dan Henry") == "DH")
+        #expect(BrandView.initials(for: "Patek Philippe") == "PP")
     }
 
     @Test("Three or more word brand caps at 3 initials")
     func threeWordMax() {
-        #expect(view.initials(for: "Oak & Oscar") == "O&O")
-        #expect(view.initials(for: "Alpha Beta Gamma Delta") == "ABG")
+        #expect(BrandView.initials(for: "Oak & Oscar") == "O&O")
+        #expect(BrandView.initials(for: "Alpha Beta Gamma Delta") == "ABG")
     }
 
     @Test("Hyphenated brand splits on hyphen")
     func hyphenatedInitials() {
-        #expect(view.initials(for: "Jaeger-LeCoultre") == "JL")
+        #expect(BrandView.initials(for: "Jaeger-LeCoultre") == "JL")
     }
 
     @Test("Non-breaking hyphen brand splits correctly")
     func nonBreakingHyphenInitials() {
         let brand = "Jaeger\u{2011}LeCoultre"
-        #expect(view.initials(for: brand) == "JL")
+        #expect(BrandView.initials(for: brand) == "JL")
     }
 
     @Test("Initials are always uppercased")
     func initialsUppercased() {
-        #expect(view.initials(for: "lowercase brand") == "LB")
+        #expect(BrandView.initials(for: "lowercase brand") == "LB")
     }
 
     // MARK: - brandColor(for:)
@@ -59,23 +57,23 @@ struct BrandViewTests {
     @Test("Known non-black brands return non-black colors")
     func knownBrandsReturnColor() {
         // Breitling is yellow, Swatch is orange, Farer is orange -- all clearly not black
-        #expect(view.brandColor(for: "Breitling") != Color.black)
-        #expect(view.brandColor(for: "Swatch") != Color.black)
-        #expect(view.brandColor(for: "Farer") != Color.black)
+        #expect(BrandView.brandColor(for: "Breitling") != Color.black)
+        #expect(BrandView.brandColor(for: "Swatch") != Color.black)
+        #expect(BrandView.brandColor(for: "Farer") != Color.black)
     }
 
     @Test("Unknown brand returns black")
     func unknownBrandReturnsBlack() {
-        #expect(view.brandColor(for: "UnknownBrandXYZ") == Color.black)
+        #expect(BrandView.brandColor(for: "UnknownBrandXYZ") == Color.black)
     }
 
     @Test("Empty string brand returns black")
     func emptyBrandReturnsBlack() {
-        #expect(view.brandColor(for: "") == Color.black)
+        #expect(BrandView.brandColor(for: "") == Color.black)
     }
 
     @Test("Brand color lookup is case-sensitive")
     func caseSensitiveLookup() {
-        #expect(view.brandColor(for: "rolex") == Color.black)
+        #expect(BrandView.brandColor(for: "rolex") == Color.black)
     }
 }

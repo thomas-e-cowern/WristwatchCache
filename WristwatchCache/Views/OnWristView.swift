@@ -20,10 +20,6 @@ struct OnWristView: View {
     }
 
     private func selectWatch(_ watch: Watch) {
-        // Remove today's date from the previously selected watch
-        if let previous = todaysWatch, previous.persistentModelID != watch.persistentModelID {
-            previous.datesWorn.removeAll { Calendar.current.isDateInToday($0) }
-        }
         watch.datesWorn.append(Date())
         try? modelContext.save()
         isChanging = false
@@ -62,7 +58,7 @@ struct OnWristView: View {
                         detailRow("Case Size", value: "\(String(format: "%.0f", diameter))mm")
                     }
                     detailRow("Status", value: watch.watchStatus.rawValue)
-                    detailRow("Times Worn", value: "\(watch.datesWorn.count)")
+                    detailRow("Times Worn", value: "\(WatchStatistics.wearCount(for: watch))")
                 }
                 .padding(.horizontal)
 
@@ -124,7 +120,7 @@ struct OnWristView: View {
                     ContentUnavailableView {
                         Label("No watches in your collection", systemImage: "watch.analog")
                     } description: {
-                        Text("You haven't addad any watches yet.  Please click below to add one")
+                        Text("You haven't added any watches yet.  Please click below to add one")
                     } actions: {
                         AddWatchButton()
                             .buttonStyle(.borderedProminent)

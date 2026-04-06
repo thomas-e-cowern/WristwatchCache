@@ -185,7 +185,7 @@ struct WatchDetailView: View {
                 Text("Never worn")
                     .foregroundStyle(.secondary)
             } else {
-                displayRow("Times Worn", value: "\(datesWorn.count)")
+                displayRow("Times Worn", value: "\(Set(datesWorn.map { Calendar.current.startOfDay(for: $0) }).count)")
                 if let last = datesWorn.sorted().last {
                     displayRow("Last Worn", value: Self.dateFormatter.string(from: last))
                 }
@@ -225,13 +225,13 @@ struct WatchDetailView: View {
             TextField("Brand", text: $brand)
             TextField("Model", text: $modelName)
             Picker("Style", selection: $style) {
-                ForEach(Style.allCases, id: \.self) { style in
-                    Text(style.rawValue).tag(style)
+                ForEach(Style.allCases, id: \.self) { styleCase in
+                    Text(styleCase.rawValue).tag(styleCase)
                 }
             }
             Picker("Movement", selection: $movement) {
-                ForEach(Movement.allCases, id: \.self) { movement in
-                    Text(movement.rawValue).tag(movement)
+                ForEach(Movement.allCases, id: \.self) { movementCase in
+                    Text(movementCase.rawValue).tag(movementCase)
                 }
             }
         }

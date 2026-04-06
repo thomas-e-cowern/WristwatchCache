@@ -34,7 +34,7 @@ struct CardView: View {
                             .scaledToFit()
                     } else {
                         // Placeholder
-                        BrandView(brand: brand)
+                        ArcTextImageView(topText: brand, bottomText: model, diameter: 250)
                     }
                 }
                 

@@ -63,14 +63,14 @@ struct AddWatchView: View {
                     TextField("Model", text: $modelName)
 
                     Picker("Style", selection: $style) {
-                        ForEach(Style.allCases, id: \.self) { style in
-                            Text(style.rawValue).tag(style)
+                        ForEach(Style.allCases, id: \.self) { styleCase in
+                            Text(styleCase.rawValue).tag(styleCase)
                         }
                     }
 
                     Picker("Movement", selection: $movement) {
-                        ForEach(Movement.allCases, id: \.self) { movement in
-                            Text(movement.rawValue).tag(movement)
+                        ForEach(Movement.allCases, id: \.self) { movementCase in
+                            Text(movementCase.rawValue).tag(movementCase)
                         }
                     }
                     TextField("Serial Number", text: $serialNumber)
