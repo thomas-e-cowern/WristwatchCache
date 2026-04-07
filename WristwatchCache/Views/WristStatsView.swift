@@ -25,6 +25,13 @@ struct WristStatsView: View {
                     LabeledContent("Never Worn", value: "\(stats.neverWorn.count)")
                 }
 
+                // Watches by brand
+                Section("Watches by Brand") {
+                    ForEach(stats.countByBrand, id: \.brand) { entry in
+                        LabeledContent(entry.brand, value: "\(entry.count)")
+                    }
+                }
+
                 // Most worn watch
                 if let top = stats.mostWorn, WatchStatistics.wearCount(for: top) > 0 {
                     Section("Most Worn") {

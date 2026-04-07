@@ -28,6 +28,13 @@ struct WatchStatistics {
         watches.filter { $0.datesWorn.isEmpty }
     }
 
+    /// Number of watches grouped by brand, sorted by count descending
+    var countByBrand: [(brand: String, count: Int)] {
+        Dictionary(grouping: watches, by: \.brand)
+            .map { (brand: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+    }
+
     var rankedByWear: [Watch] {
         watches.sorted { Self.wearCount(for: $0) > Self.wearCount(for: $1) }
     }
