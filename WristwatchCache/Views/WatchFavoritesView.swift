@@ -15,13 +15,13 @@ struct WatchFavoritesView: View {
             watch.favorite == true
     }, sort: \.brand) private var favoriteWatches: [Watch]
     
-    @State private var searchText: String = ""
+    @State private var search = WatchSearchObservable()
     
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach(searchResults) { watch in
+                    ForEach(search.filteredResults(from: favoriteWatches)) { watch in
                         NavigationLink {
                             WatchDetailView(watch: watch)
                         } label: {
@@ -48,17 +48,7 @@ struct WatchFavoritesView: View {
                 }
             }
         }
-        .searchable(text: $searchText)
-    }
-    
-    var searchResults: [Watch] {
-        if searchText.isEmpty {
-            return favoriteWatches
-        } else {
-            return favoriteWatches.filter {
-                $0.brand.localizedStandardContains(searchText) || $0.model.localizedStandardContains(searchText)
-            }
-        }
+        .searchable(text: $search.searchText)
     }
 }
 
