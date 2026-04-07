@@ -26,10 +26,21 @@ struct WristStatsView: View {
                 }
 
                 // Watches by brand
-                Section("Watches by Brand") {
-                    ForEach(stats.countByBrand, id: \.brand) { entry in
-                        LabeledContent(entry.brand, value: "\(entry.count)")
+//                Section("Watches by Brand") {
+//                    ForEach(stats.countByBrand, id: \.brand) { entry in
+//                        LabeledContent(entry.brand, value: "\(entry.count)")
+//                    }
+//                }
+                
+                Section("Brands I Own") {
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing: 10) {
+                            ForEach(stats.countByBrand, id: \.brand) { entry in
+                                BrandStatsView(label: entry.brand, color: BrandView.brandColor(for: entry.brand), number: entry.count)
+                            }
+                        }
                     }
+                    .scrollIndicators(.hidden)
                 }
 
                 // Watches by style
