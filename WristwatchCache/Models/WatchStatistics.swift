@@ -35,6 +35,20 @@ struct WatchStatistics {
             .sorted { $0.count > $1.count }
     }
 
+    /// Number of watches grouped by style, sorted by count descending
+    var countByStyle: [(style: Style, count: Int)] {
+        Dictionary(grouping: watches, by: \.style)
+            .map { (style: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+    }
+
+    /// Number of watches grouped by movement, sorted by count descending
+    var countByMovement: [(movement: Movement, count: Int)] {
+        Dictionary(grouping: watches, by: \.movement)
+            .map { (movement: $0.key, count: $0.value.count) }
+            .sorted { $0.count > $1.count }
+    }
+
     var rankedByWear: [Watch] {
         watches.sorted { Self.wearCount(for: $0) > Self.wearCount(for: $1) }
     }
