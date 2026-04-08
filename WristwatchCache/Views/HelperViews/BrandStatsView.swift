@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct BrandStatsView: View {
     let label: String
     let color: Color
