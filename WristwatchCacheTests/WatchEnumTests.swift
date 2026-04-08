@@ -26,7 +26,7 @@ struct WatchEnumTests {
 
     @Test("Style has 19 cases")
     func styleCaseCount() {
-        #expect(Style.allCases.count == 19)
+        #expect(Style.allCases.count == 20)
     }
 
     @Test("AccuracyMethod has 3 cases")
@@ -51,7 +51,7 @@ struct WatchEnumTests {
     @Test("Movement raw values are all correct")
     func movementRawValues() {
         #expect(Movement.automatic.rawValue == "Automatic")
-        #expect(Movement.handWound.rawValue == "Hand would")
+        #expect(Movement.handWound.rawValue == "Hand wound")
         #expect(Movement.quartz.rawValue == "Quartz")
         #expect(Movement.solarQuartz.rawValue == "Solar")
         #expect(Movement.kinetic.rawValue == "Kinetic")

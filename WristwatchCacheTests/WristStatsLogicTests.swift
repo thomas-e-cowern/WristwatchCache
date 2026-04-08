@@ -250,6 +250,92 @@ struct WristStatsLogicTests {
         #expect(stats.wornToday(watch) == true)
     }
 
+    // MARK: - countByBrand
+
+    @Test("countByBrand returns empty for empty collection")
+    func countByBrandEmpty() {
+        let stats = WatchStatistics(watches: [])
+        #expect(stats.countByBrand.isEmpty)
+    }
+
+    @Test("countByBrand groups watches by brand with correct counts")
+    func countByBrandGroups() {
+        let watches = [
+            makeWatch(brand: "Rolex"),
+            makeWatch(brand: "Rolex"),
+            makeWatch(brand: "Omega"),
+            makeWatch(brand: "Omega"),
+            makeWatch(brand: "Omega"),
+            makeWatch(brand: "Seiko"),
+        ]
+        let stats = WatchStatistics(watches: watches)
+        let result = stats.countByBrand
+        #expect(result.count == 3)
+        #expect(result[0].brand == "Omega")
+        #expect(result[0].count == 3)
+        #expect(result[1].brand == "Rolex")
+        #expect(result[1].count == 2)
+        #expect(result[2].brand == "Seiko")
+        #expect(result[2].count == 1)
+    }
+
+    @Test("countByBrand returns single entry for one brand")
+    func countByBrandSingle() {
+        let watches = [makeWatch(brand: "Casio"), makeWatch(brand: "Casio")]
+        let stats = WatchStatistics(watches: watches)
+        #expect(stats.countByBrand.count == 1)
+        #expect(stats.countByBrand[0].brand == "Casio")
+        #expect(stats.countByBrand[0].count == 2)
+    }
+
+    // MARK: - countByStyle
+
+    @Test("countByStyle returns empty for empty collection")
+    func countByStyleEmpty() {
+        let stats = WatchStatistics(watches: [])
+        #expect(stats.countByStyle.isEmpty)
+    }
+
+    @Test("countByStyle groups watches by style with correct counts")
+    func countByStyleGroups() {
+        let watches = [
+            Watch(brand: "A", model: "M", style: .diver, movement: .automatic, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+            Watch(brand: "B", model: "M", style: .diver, movement: .automatic, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+            Watch(brand: "C", model: "M", style: .dress, movement: .automatic, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+        ]
+        let stats = WatchStatistics(watches: watches)
+        let result = stats.countByStyle
+        #expect(result.count == 2)
+        #expect(result[0].style == .diver)
+        #expect(result[0].count == 2)
+        #expect(result[1].style == .dress)
+        #expect(result[1].count == 1)
+    }
+
+    // MARK: - countByMovement
+
+    @Test("countByMovement returns empty for empty collection")
+    func countByMovementEmpty() {
+        let stats = WatchStatistics(watches: [])
+        #expect(stats.countByMovement.isEmpty)
+    }
+
+    @Test("countByMovement groups watches by movement with correct counts")
+    func countByMovementGroups() {
+        let watches = [
+            Watch(brand: "A", model: "M", style: .dress, movement: .quartz, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+            Watch(brand: "B", model: "M", style: .dress, movement: .quartz, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+            Watch(brand: "C", model: "M", style: .dress, movement: .automatic, hasBracelet: false, watchStatus: .available, accuracyMethod: .manual, datesWorn: []),
+        ]
+        let stats = WatchStatistics(watches: watches)
+        let result = stats.countByMovement
+        #expect(result.count == 2)
+        #expect(result[0].movement == .quartz)
+        #expect(result[0].count == 2)
+        #expect(result[1].movement == .automatic)
+        #expect(result[1].count == 1)
+    }
+
     // MARK: - todaysWatch
 
     @Test("todaysWatch returns nil for empty collection")
