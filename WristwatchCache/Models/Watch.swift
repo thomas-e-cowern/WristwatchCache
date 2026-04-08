@@ -84,9 +84,13 @@ enum AccuracyMethod: String, Codable, CaseIterable {
     case other = "Other"
 }
 
+import SwiftUI
+
+import SwiftUI
+
 enum Movement: String, Codable, CaseIterable {
     case automatic = "Automatic"
-    case handWound = "Hand would"
+    case handWound = "Hand wound"
     case quartz = "Quartz"
     case solarQuartz = "Solar"
     case kinetic = "Kinetic"
@@ -102,7 +106,31 @@ enum Movement: String, Codable, CaseIterable {
     case remontaire = "Remontaire"
     case microRotor = "Micro Rotor"
     case other = "Other"
+
+    var color: Color {
+        switch self {
+        case .automatic: return Color.blue
+        case .handWound: return Color.orange
+        case .quartz: return Color.gray
+        case .solarQuartz: return Color.yellow
+        case .kinetic: return Color.purple
+        case .springDrive: return Color.teal
+        case .tuningFork: return Color.indigo
+        case .electroMechanical: return Color.brown
+        case .highPrecisionQuartz: return Color.cyan
+        case .tempratureCompensatedQuartz: return Color.mint
+        case .gpsRadioSync: return Color.green
+        case .digital: return Color.black
+        case .tourbillon: return Color.red
+        case .fuseeChain: return Color.pink
+        case .remontaire: return Color.gray.opacity(0.8)
+        case .microRotor: return Color.blue.opacity(0.8)
+        case .other: return Color.secondary
+        }
+    }
 }
+
+
 
 enum Style: String, Codable, CaseIterable {
     case diver = "Diver"
@@ -151,9 +179,9 @@ extension Watch {
             Watch(brand: "Zenith", model: "El Primero 3600", style: .chronograph, movement: .automatic, caseDiameter: 38.0, lugWidth: 20.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1527811200), watchStatus: .available, accuracy: +0.7, accuracyMethod: .timeGrapher, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1699852800)], favorite: false),
             Watch(brand: "Bulgari", model: "Octo Finissimo Automatic", style: .sport, movement: .automatic, caseDiameter: 40.0, lugWidth: 21.0, hasBracelet: true, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1564617600), watchStatus: .available, accuracy: +1.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1704043200)], favorite: false),
             Watch(brand: "Longines", model: "Master Collection L2.673.4", style: .dress, movement: .automatic, caseDiameter: 38.5, lugWidth: 19.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1585699200), watchStatus: .available, accuracy: +3.5, accuracyMethod: .manual, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1708684800)], favorite: false),
-            Watch(brand: "Timex", model: "Marlin Automatic", style: .dress, movement: .automatic, caseDiameter: 40.0, lugWidth: 20.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1517443200), watchStatus: .available, accuracy: +20.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1693526400)], favorite: true),
+            Watch(brand: "Timex", model: "Marlin Automatic", style: .dress, movement: .handWound, caseDiameter: 40.0, lugWidth: 20.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1517443200), watchStatus: .available, accuracy: +20.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1693526400)], favorite: true),
             Watch(brand: "Citizen", model: "Promaster Diver NY0084-89E", style: .diver, movement: .automatic, caseDiameter: 42.0, lugWidth: 20.0, hasBracelet: true, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1630454400), watchStatus: .available, accuracy: +6.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [Date(timeIntervalSince1970: 1709475200)], favorite: true),
-            Watch(brand: "Dan Henry", model: "1970 Automatic Diver", style: .diver, movement: .automatic, caseDiameter: 41.0, lugWidth: 20.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1543622400), watchStatus: .selling, accuracy: +10.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [], favorite: true)
+            Watch(brand: "Dan Henry", model: "1970 Automatic Diver", style: .diver, movement: .quartz, caseDiameter: 41.0, lugWidth: 20.0, hasBracelet: false, lastBatteryChange: nil, lastServiced: Date(timeIntervalSince1970: 1543622400), watchStatus: .selling, accuracy: +10.0, accuracyMethod: .manual, dateHacked: nil, datesWorn: [], favorite: true)
         ]
     }
 }
