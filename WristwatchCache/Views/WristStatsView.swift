@@ -42,13 +42,24 @@ struct WristStatsView: View {
                     }
                     .scrollIndicators(.hidden)
                 }
-
-                // Watches by style
-                Section("Watches by Style") {
-                    ForEach(stats.countByStyle, id: \.style) { entry in
-                        LabeledContent(entry.style.rawValue, value: "\(entry.count)")
+                
+                Section("Styles I Own") {
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing: 10) {
+                            ForEach(stats.countByStyle, id: \.style) { entry in
+                                BrandStatsView(label: entry.style.rawValue, color: BrandView.brandColor(for: entry.style.rawValue), number: entry.count)
+                            }
+                        }
                     }
+                    .scrollIndicators(.hidden)
                 }
+
+//                // Watches by style
+//                Section("Watches by Style") {
+//                    ForEach(stats.countByStyle, id: \.style) { entry in
+//                        LabeledContent(entry.style.rawValue, value: "\(entry.count)")
+//                    }
+//                }
 
                 // Watches by movement
                 Section("Watches by Movement") {
