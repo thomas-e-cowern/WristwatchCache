@@ -42,17 +42,17 @@ struct CardView: View {
                 Spacer()
                 
                 // Text block
-                VStack(alignment: .center, spacing: 4) {
-                    Text(brand)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    
-                    Text(model)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
+//                VStack(alignment: .center, spacing: 4) {
+//                    Text(brand)
+//                        .font(.headline)
+//                        .foregroundColor(.primary)
+//                        .lineLimit(1)
+//                    
+//                    Text(model)
+//                        .font(.subheadline)
+//                        .foregroundColor(.secondary)
+//                        .lineLimit(1)
+//                }
                 
                 Spacer()
             }
