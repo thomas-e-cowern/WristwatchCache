@@ -132,6 +132,8 @@ enum Movement: String, Codable, CaseIterable {
 
 
 
+import SwiftUI
+
 enum Style: String, Codable, CaseIterable {
     case diver = "Diver"
     case chronograph = "Chronograph"
@@ -152,7 +154,34 @@ enum Style: String, Codable, CaseIterable {
     case digital = "Digital"
     case military = "Military"
     case beater = "Beater"
+    case other = "Other"
+
+    var color: Color {
+        switch self {
+        case .diver: return Color.blue
+        case .chronograph: return Color.orange
+        case .dress: return Color.gray
+        case .pilot: return Color.teal
+        case .fieldWatch: return Color.green
+        case .gmtWatch: return Color.purple
+        case .sport: return Color.red
+        case .skeleton: return Color.indigo
+        case .moonPhase: return Color.mint
+        case .worldTimer: return Color.cyan
+        case .tonneau: return Color.pink
+        case .pilotChronograph: return Color.brown
+        case .racing: return Color.yellow
+        case .tropical: return Color.orange.opacity(0.8)
+        case .tool: return Color.primary
+        case .dressChronograph: return Color.secondary
+        case .digital: return Color.black
+        case .military: return Color.green.opacity(0.8)
+        case .beater: return Color.secondary.opacity(0.7)
+        case .other: return Color.secondary
+        }
+    }
 }
+
 
 extension Watch {
     static func isValid(brand: String, model: String) -> Bool {
