@@ -60,13 +60,25 @@ struct WristStatsView: View {
 //                        LabeledContent(entry.style.rawValue, value: "\(entry.count)")
 //                    }
 //                }
-
-                // Watches by movement
-                Section("Watches by Movement") {
-                    ForEach(stats.countByMovement, id: \.movement) { entry in
-                        LabeledContent(entry.movement.rawValue, value: "\(entry.count)")
+                
+                Section("Movements I Own") {
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing: 10) {
+                            ForEach(stats.countByMovement, id: \.movement) { entry in
+                                MovementStatsView(label: entry.movement.rawValue, color: entry.movement.color, number: entry.count)
+                            }
+                        }
                     }
+                    .scrollIndicators(.hidden)
                 }
+
+
+//                // Watches by movement
+//                Section("Watches by Movement") {
+//                    ForEach(stats.countByMovement, id: \.movement) { entry in
+//                        LabeledContent(entry.movement.rawValue, value: "\(entry.count)")
+//                    }
+//                }
 
                 // Most worn watch
                 if let top = stats.mostWorn, WatchStatistics.wearCount(for: top) > 0 {
