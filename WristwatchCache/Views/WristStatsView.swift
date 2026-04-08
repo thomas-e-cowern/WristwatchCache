@@ -26,12 +26,6 @@ struct WristStatsView: View {
                 }
 
                 // Watches by brand
-//                Section("Watches by Brand") {
-//                    ForEach(stats.countByBrand, id: \.brand) { entry in
-//                        LabeledContent(entry.brand, value: "\(entry.count)")
-//                    }
-//                }
-                
                 Section("Brands I Own") {
                     ScrollView(.horizontal) {
                         LazyHStack(spacing: 10) {
@@ -43,24 +37,19 @@ struct WristStatsView: View {
                     .scrollIndicators(.hidden)
                 }
                 
+                // Watches by style
                 Section("Styles I Own") {
                     ScrollView(.horizontal) {
                         LazyHStack(spacing: 10) {
                             ForEach(stats.countByStyle, id: \.style) { entry in
-                                BrandStatsView(label: entry.style.rawValue, color: BrandView.brandColor(for: entry.style.rawValue), number: entry.count)
+                                StyleStatsView(label: entry.style.rawValue, color: entry.style.color, number: entry.count)
                             }
                         }
                     }
                     .scrollIndicators(.hidden)
                 }
 
-//                // Watches by style
-//                Section("Watches by Style") {
-//                    ForEach(stats.countByStyle, id: \.style) { entry in
-//                        LabeledContent(entry.style.rawValue, value: "\(entry.count)")
-//                    }
-//                }
-                
+                // Watches by movement
                 Section("Movements I Own") {
                     ScrollView(.horizontal) {
                         LazyHStack(spacing: 10) {
@@ -71,14 +60,6 @@ struct WristStatsView: View {
                     }
                     .scrollIndicators(.hidden)
                 }
-
-
-//                // Watches by movement
-//                Section("Watches by Movement") {
-//                    ForEach(stats.countByMovement, id: \.movement) { entry in
-//                        LabeledContent(entry.movement.rawValue, value: "\(entry.count)")
-//                    }
-//                }
 
                 // Most worn watch
                 if let top = stats.mostWorn, WatchStatistics.wearCount(for: top) > 0 {
