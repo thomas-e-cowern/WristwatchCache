@@ -28,6 +28,15 @@ struct WatchStatistics {
         watches.filter { $0.datesWorn.isEmpty }
     }
 
+    /// Watches with `.available` status that haven't been worn in 90+ days
+    var notWornIn90Days: [Watch] {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
+        return watches.filter { watch in
+            watch.watchStatus == .available &&
+            (watch.datesWorn.isEmpty || (watch.datesWorn.max() ?? .distantPast) < cutoff)
+        }
+    }
+
     /// Number of watches grouped by brand, sorted by count descending
     var countByBrand: [(brand: String, count: Int)] {
         Dictionary(grouping: watches, by: \.brand)
