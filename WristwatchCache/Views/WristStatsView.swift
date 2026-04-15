@@ -125,7 +125,7 @@ struct WristStatsView: View {
                                 Text("#\(index + 1)")
                                     .font(.headline)
                                     .foregroundStyle(.secondary)
-                                    .frame(width: 30)
+                                    .frame(width: 44)
                                 BrandView(brand: watch.brand)
                                 VStack(alignment: .leading) {
                                     Text(watch.brand)
