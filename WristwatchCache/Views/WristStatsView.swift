@@ -108,6 +108,82 @@ struct WristStatsView: View {
                 }
                 
 
+                // Wear Patterns
+                if stats.totalWears > 0 {
+                    Section("Wear Patterns") {
+                        // Day-of-week bar chart
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Days You Wear Watches")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            let maxCount = stats.wearsByDayOfWeek.map(\.count).max() ?? 1
+                            ForEach(stats.wearsByDayOfWeek, id: \.weekday) { entry in
+                                HStack(spacing: 8) {
+                                    Text(entry.symbol)
+                                        .font(.caption)
+                                        .frame(width: 32, alignment: .trailing)
+                                    GeometryReader { geo in
+                                        Capsule()
+                                            .fill(Color.accentColor.opacity(0.8))
+                                            .frame(
+                                                width: maxCount > 0
+                                                    ? geo.size.width * CGFloat(entry.count) / CGFloat(maxCount)
+                                                    : 0
+                                            )
+                                    }
+                                    .frame(height: 14)
+                                    Text("\(entry.count)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 28, alignment: .leading)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+
+                        // Active rotation
+                        LabeledContent("Active Rotation (30 days)", value: "\(stats.activeRotationCount) watches")
+
+                        // Current streak
+                        if let streak = stats.currentStreak, streak.days > 1 {
+                            LabeledContent("Current Streak") {
+                                Text("\(streak.watch.brand) \(streak.watch.model) — \(streak.days) days")
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
+
+                        // Longest unworn
+                        if let unworn = stats.longestUnworn {
+                            LabeledContent("Longest Without Wear") {
+                                Text("\(unworn.watch.brand) \(unworn.watch.model) — \(unworn.days) days")
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
+                    }
+
+                    // Favorite watch per day
+                    if !stats.favoriteWatchByDayOfWeek.isEmpty {
+                        Section("Your Go-To Watch by Day") {
+                            ForEach(stats.favoriteWatchByDayOfWeek, id: \.symbol) { entry in
+                                HStack(spacing: 12) {
+                                    Text(entry.symbol)
+                                        .font(.headline)
+                                        .frame(width: 36)
+                                    BrandView(brand: entry.watch.brand)
+                                    VStack(alignment: .leading) {
+                                        Text(entry.watch.brand)
+                                            .font(.subheadline)
+                                        Text(entry.watch.model)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Wear ranking
                 Section("Wear Ranking") {
                     if watches.count < 1 {
