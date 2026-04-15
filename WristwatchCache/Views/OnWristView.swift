@@ -14,6 +14,7 @@ struct OnWristView: View {
     @Query(sort: \Watch.brand) private var watches: [Watch]
     @State private var isChanging = false
     @State private var showAddWatch = false
+    @State private var showRandomPicker = false
     @State private var search = WatchSearchObservable()
 
     private var todaysWatch: Watch? {
@@ -36,8 +37,10 @@ struct OnWristView: View {
                 }
             }
             .navigationTitle("On Your Wrist")
+            .sheet(isPresented: $showRandomPicker) {
+                RandomPickerView(watches: watches, onSelectWatch: selectWatch)
+            }
         }
-       
     }
     
 
@@ -74,6 +77,15 @@ struct OnWristView: View {
                 }
                 .buttonStyle(.bordered)
                 .padding(.horizontal)
+
+                Button {
+                    showRandomPicker = true
+                } label: {
+                    Label("Pick for me", systemImage: "dice")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -101,6 +113,16 @@ struct OnWristView: View {
                      : "No watch selected today. Tap one to put it on your wrist.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            }
+
+            if !watches.isEmpty {
+                Section {
+                    Button {
+                        showRandomPicker = true
+                    } label: {
+                        Label("Pick for me", systemImage: "dice")
+                    }
+                }
             }
 
             Section("Your Collection") {
