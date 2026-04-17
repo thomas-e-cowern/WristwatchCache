@@ -20,9 +20,7 @@ struct WristStatsView: View {
             List {
                 // Collection overview
                 Section("Collection Overview") {
-                    LabeledContent("Total Watches", value: "\(watches.count)")
-                    LabeledContent("Total Wears Logged", value: "\(stats.totalWears)")
-                    LabeledContent("Never Worn", value: "\(stats.neverWorn.count)")
+                    CollectionOverviewView()
                 }
 
                 // Watches by brand
