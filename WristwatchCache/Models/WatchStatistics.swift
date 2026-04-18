@@ -37,25 +37,25 @@ struct WatchStatistics {
         }
     }
 
-    /// Number of watches grouped by brand, sorted by count descending
+    /// Number of watches grouped by brand, sorted alphabetically
     var countByBrand: [(brand: String, count: Int)] {
         Dictionary(grouping: watches, by: \.brand)
             .map { (brand: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
+            .sorted { $0.brand.localizedCaseInsensitiveCompare($1.brand) == .orderedAscending }
     }
 
-    /// Number of watches grouped by style, sorted by count descending
+    /// Number of watches grouped by style, sorted alphabetically
     var countByStyle: [(style: Style, count: Int)] {
         Dictionary(grouping: watches, by: \.style)
             .map { (style: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
+            .sorted { $0.style.rawValue.localizedCaseInsensitiveCompare($1.style.rawValue) == .orderedAscending }
     }
 
-    /// Number of watches grouped by movement, sorted by count descending
+    /// Number of watches grouped by movement, sorted alphabetically
     var countByMovement: [(movement: Movement, count: Int)] {
         Dictionary(grouping: watches, by: \.movement)
             .map { (movement: $0.key, count: $0.value.count) }
-            .sorted { $0.count > $1.count }
+            .sorted { $0.movement.rawValue.localizedCaseInsensitiveCompare($1.movement.rawValue) == .orderedAscending }
     }
 
     var rankedByWear: [Watch] {

@@ -24,7 +24,11 @@ struct CollectionOverviewView: View {
         }
 
         
-        LabeledContent("Total Wears Logged", value: "\(stats.totalWears)")
+        NavigationLink {
+            WearHistoryView()
+        } label: {
+            LabeledContent("Total Wears Logged", value: "\(stats.totalWears)")
+        }
         
         NavigationLink {
             UnwornWatchView()
