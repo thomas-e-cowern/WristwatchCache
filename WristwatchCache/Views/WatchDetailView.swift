@@ -213,7 +213,7 @@ struct WatchDetailView: View {
         }
 
         Section("Special Occasions") {
-            let sorted = watch.specialOccasions.sorted { $0.date > $1.date }
+            let sorted = watch.specialOccasions.sorted { $0.effectiveDate < $1.effectiveDate }
             if sorted.isEmpty {
                 Text("No special occasions recorded")
                     .foregroundStyle(.secondary)
@@ -226,9 +226,20 @@ struct WatchDetailView: View {
                             Text(occasion.name)
                                 .font(.headline)
                                 .foregroundStyle(.primary)
-                            Text(Self.dateFormatter.string(from: occasion.date))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            if occasion.recurrence == .none {
+                                Text(occasion.date.formatted(date: .abbreviated, time: .omitted))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                if let next = occasion.nextOccurrence {
+                                    Label("Next: \(next.formatted(date: .abbreviated, time: .omitted))", systemImage: "arrow.clockwise")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text("Repeats \(occasion.recurrence.rawValue.lowercased())")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                             if !occasion.notes.isEmpty {
                                 Text(occasion.notes)
                                     .font(.caption)
