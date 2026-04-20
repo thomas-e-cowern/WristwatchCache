@@ -13,7 +13,7 @@ struct WristwatchCacheApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var container: ModelContainer = {
         do {
-            return try ModelContainer(for: Watch.self)
+            return try ModelContainer(for: Watch.self, SpecialOccasion.self)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }

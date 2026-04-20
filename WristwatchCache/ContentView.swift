@@ -28,6 +28,9 @@ struct ContentView: View {
             Tab("Wrist Stats", systemImage: "chart.bar", value: 3) {
                 WristStatsView()
             }
+            Tab("Occasions", systemImage: "star.circle", value: 4) {
+                SpecialOccasionsView()
+            }
         }
     }
 }

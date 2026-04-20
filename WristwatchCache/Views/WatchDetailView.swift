@@ -49,6 +49,18 @@ struct WatchDetailView: View {
     @State private var favorite: Bool
 
     @State private var showDeleteConfirmation = false
+    @State private var activeOccasionSheet: OccasionSheetMode?
+
+    private enum OccasionSheetMode: Identifiable {
+        case add
+        case edit(SpecialOccasion)
+        var id: String {
+            switch self {
+            case .add: return "add"
+            case .edit(let o): return o.persistentModelID.hashValue.description
+            }
+        }
+    }
 
     // Init uses the passed watch to prefill state
     init(watch: Watch) {
@@ -116,6 +128,14 @@ struct WatchDetailView: View {
         .confirmationDialog("Delete this watch?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 deleteWatch()
+            }
+        }
+        .sheet(item: $activeOccasionSheet) { mode in
+            switch mode {
+            case .add:
+                AddEditSpecialOccasionView(preselectedWatch: watch)
+            case .edit(let occasion):
+                AddEditSpecialOccasionView(occasion: occasion)
             }
         }
     }
@@ -189,6 +209,39 @@ struct WatchDetailView: View {
                 if let last = datesWorn.sorted().last {
                     displayRow("Last Worn", value: Self.dateFormatter.string(from: last))
                 }
+            }
+        }
+
+        Section("Special Occasions") {
+            let sorted = watch.specialOccasions.sorted { $0.date > $1.date }
+            if sorted.isEmpty {
+                Text("No special occasions recorded")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(sorted) { occasion in
+                    Button {
+                        activeOccasionSheet = .edit(occasion)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(occasion.name)
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Text(Self.dateFormatter.string(from: occasion.date))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            if !occasion.notes.isEmpty {
+                                Text(occasion.notes)
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                                    .lineLimit(2)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            Button("Add Special Occasion") {
+                activeOccasionSheet = .add
             }
         }
 

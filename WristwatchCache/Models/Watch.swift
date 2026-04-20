@@ -46,7 +46,11 @@ class Watch {
     
     // Favorite
     var favorite: Bool = false
-    
+
+    // Special occasions
+    @Relationship(deleteRule: .cascade, inverse: \SpecialOccasion.watch)
+    var specialOccasions: [SpecialOccasion] = []
+
     init(brand: String, model: String, style: Style, movement: Movement, serialNumber: String = "N/A", caseDiameter: Double? = nil, lugWidth: Double? = nil, hasBracelet: Bool, lastBatteryChange: Date? = nil, lastServiced: Date? = nil, watchStatus: WatchStatus, accuracy: Double? = nil, accuracyMethod: AccuracyMethod, dateHacked: Date? = nil, datesWorn: [Date], photo: Data? = nil, favorite: Bool = false) {
         self.brand = brand
         self.model = model
