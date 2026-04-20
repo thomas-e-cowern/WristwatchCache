@@ -11,7 +11,7 @@ import SwiftData
 struct WatchListView: View {
     @Environment(\.modelContext) var modelContext
     
-    @Query var watches: [Watch]
+    @Query(sort: [SortDescriptor(\Watch.brand), SortDescriptor(\Watch.model)]) var watches: [Watch]
     
     @State private var search = WatchSearchObservable()
     

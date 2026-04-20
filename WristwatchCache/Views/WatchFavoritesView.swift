@@ -10,12 +10,17 @@ import SwiftData
 
 struct WatchFavoritesView: View {
     @Environment(\.modelContext) var modelContext
-    
-    @Query(filter: #Predicate<Watch> { watch in
-            watch.favorite == true
-    }, sort: \.brand) private var favoriteWatches: [Watch]
-    
+
+    @Query private var favoriteWatches: [Watch]
+
     @State private var search = WatchSearchObservable()
+
+    init() {
+        _favoriteWatches = Query(FetchDescriptor<Watch>(
+            predicate: #Predicate { $0.favorite == true },
+            sortBy: [SortDescriptor(\Watch.brand), SortDescriptor(\Watch.model)]
+        ))
+    }
     
     var body: some View {
         NavigationStack {
