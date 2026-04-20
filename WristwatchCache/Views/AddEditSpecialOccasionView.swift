@@ -20,14 +20,16 @@ struct AddEditSpecialOccasionView: View {
     @State private var name: String
     @State private var date: Date
     @State private var notes: String
+    @State private var recurrence: OccasionRecurrence
     @State private var selectedWatch: Watch?
 
     init(occasion: SpecialOccasion? = nil, preselectedWatch: Watch? = nil) {
         self.occasion = occasion
         self.preselectedWatch = preselectedWatch
-        _name = State(initialValue: occasion?.name ?? "")
-        _date = State(initialValue: occasion?.date ?? Date())
-        _notes = State(initialValue: occasion?.notes ?? "")
+        _name       = State(initialValue: occasion?.name ?? "")
+        _date       = State(initialValue: occasion?.date ?? Date())
+        _notes      = State(initialValue: occasion?.notes ?? "")
+        _recurrence = State(initialValue: occasion?.recurrence ?? .none)
         _selectedWatch = State(initialValue: occasion?.watch ?? preselectedWatch)
     }
 
@@ -40,7 +42,22 @@ struct AddEditSpecialOccasionView: View {
             Form {
                 Section("Details") {
                     TextField("Occasion name", text: $name)
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                    DatePicker(
+                        recurrence == .none ? "Date" : "Starting from",
+                        selection: $date,
+                        displayedComponents: .date
+                    )
+                }
+
+                Section("Recurrence") {
+                    Picker("Repeats", selection: $recurrence) {
+                        ForEach(OccasionRecurrence.allCases, id: \.self) { rule in
+                            Text(rule.rawValue).tag(rule)
+                        }
+                    }
+                    if recurrence != .none {
+                        recurrenceDescription
+                    }
                 }
 
                 Section("Watch") {
@@ -71,18 +88,35 @@ struct AddEditSpecialOccasionView: View {
         }
     }
 
+    @ViewBuilder
+    private var recurrenceDescription: some View {
+        let preview = SpecialOccasion(name: "", date: date, recurrence: recurrence)
+        if let next = preview.nextOccurrence {
+            HStack {
+                Image(systemName: "arrow.clockwise")
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                Text("Next: \(next.formatted(date: .abbreviated, time: .omitted))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
     private func save() {
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
         if let existing = occasion {
-            existing.name = trimmedName
-            existing.date = date
-            existing.notes = notes
-            existing.watch = selectedWatch
+            existing.name       = trimmedName
+            existing.date       = date
+            existing.notes      = notes
+            existing.recurrence = recurrence
+            existing.watch      = selectedWatch
         } else {
             let newOccasion = SpecialOccasion(
                 name: trimmedName,
                 date: date,
                 notes: notes,
+                recurrence: recurrence,
                 watch: selectedWatch
             )
             modelContext.insert(newOccasion)
