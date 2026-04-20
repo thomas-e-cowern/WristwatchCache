@@ -171,4 +171,47 @@ struct WatchEnumTests {
         #expect(Style(rawValue: "Dress") == .dress)
         #expect(Style(rawValue: "invalid") == nil)
     }
+
+    // MARK: - OccasionRecurrence Case Count
+
+    @Test("OccasionRecurrence has 5 cases")
+    func occasionRecurrenceCaseCount() {
+        #expect(OccasionRecurrence.allCases.count == 5)
+    }
+
+    // MARK: - OccasionRecurrence Raw Values
+
+    @Test("OccasionRecurrence raw values are correct")
+    func occasionRecurrenceRawValues() {
+        #expect(OccasionRecurrence.none.rawValue      == "None")
+        #expect(OccasionRecurrence.weekly.rawValue    == "Weekly")
+        #expect(OccasionRecurrence.biweekly.rawValue  == "Every 2 weeks")
+        #expect(OccasionRecurrence.monthly.rawValue   == "Monthly")
+        #expect(OccasionRecurrence.annually.rawValue  == "Annually")
+    }
+
+    // MARK: - OccasionRecurrence Codable
+
+    @Test("All OccasionRecurrence cases survive JSON encode/decode round-trip")
+    func occasionRecurrenceCodableRoundTrip() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for rule in OccasionRecurrence.allCases {
+            let data = try encoder.encode(rule)
+            let decoded = try decoder.decode(OccasionRecurrence.self, from: data)
+            #expect(decoded == rule)
+        }
+    }
+
+    // MARK: - OccasionRecurrence Init from Raw Value
+
+    @Test("OccasionRecurrence can be created from raw value strings")
+    func occasionRecurrenceFromRawValue() {
+        #expect(OccasionRecurrence(rawValue: "None") == OccasionRecurrence.none)
+        #expect(OccasionRecurrence(rawValue: "Weekly") == .weekly)
+        #expect(OccasionRecurrence(rawValue: "Every 2 weeks") == .biweekly)
+        #expect(OccasionRecurrence(rawValue: "Monthly") == .monthly)
+        #expect(OccasionRecurrence(rawValue: "Annually") == .annually)
+        #expect(OccasionRecurrence(rawValue: "invalid") == nil)
+    }
 }

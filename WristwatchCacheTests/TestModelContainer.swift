@@ -12,10 +12,10 @@ import Testing
 
 @MainActor
 enum TestModelContainer {
-    /// Creates a fresh in-memory ModelContainer for Watch.
+    /// Creates a fresh in-memory ModelContainer for Watch and SpecialOccasion.
     static func make() throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try ModelContainer(for: Watch.self, configurations: config)
+        return try ModelContainer(for: Watch.self, SpecialOccasion.self, configurations: config)
     }
 
     /// Creates a container pre-populated with the given watches.
