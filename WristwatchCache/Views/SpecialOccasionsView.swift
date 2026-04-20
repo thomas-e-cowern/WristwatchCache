@@ -10,51 +10,39 @@ import SwiftData
 
 struct SpecialOccasionsView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \SpecialOccasion.date, order: .reverse) private var occasions: [SpecialOccasion]
+    @Query private var occasions: [SpecialOccasion]
 
-    @State private var showAddSheet = false
-    @State private var occasionToEdit: SpecialOccasion?
+    @State private var activeSheet: OccasionListSheet?
 
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        return f
-    }()
+    private enum OccasionListSheet: Identifiable {
+        case add
+        case edit(SpecialOccasion)
+        var id: String {
+            switch self {
+            case .add: return "add"
+            case .edit(let o): return o.persistentModelID.hashValue.description
+            }
+        }
+    }
+
+    /// Sorted ascending by effective date so upcoming occasions appear first.
+    private var sorted: [SpecialOccasion] {
+        occasions.sorted { $0.effectiveDate < $1.effectiveDate }
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                if occasions.isEmpty {
+                if sorted.isEmpty {
                     ContentUnavailableView {
                         Label("No Special Occasions", systemImage: "star.circle")
                     } description: {
                         Text("Add occasions like \"Blue Watch Monday\" or \"St. Patrick's Day\" to track memorable wears.")
                     }
                 } else {
-                    ForEach(occasions) { occasion in
-                        Button {
-                            occasionToEdit = occasion
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(occasion.name)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                Text(Self.dateFormatter.string(from: occasion.date))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                if let watch = occasion.watch {
-                                    Text("\(watch.brand) \(watch.model)")
-                                        .font(.caption)
-                                        .foregroundStyle(.tertiary)
-                                }
-                                if !occasion.notes.isEmpty {
-                                    Text(occasion.notes)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
-                                }
-                            }
-                            .padding(.vertical, 2)
+                    ForEach(sorted) { occasion in
+                        Button { activeSheet = .edit(occasion) } label: {
+                            OccasionRow(occasion: occasion)
                         }
                     }
                     .onDelete(perform: deleteOccasions)
@@ -63,32 +51,73 @@ struct SpecialOccasionsView: View {
             .navigationTitle("Special Occasions")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showAddSheet = true
-                    } label: {
+                    Button { activeSheet = .add } label: {
                         Image(systemName: "plus")
                     }
                 }
-                if !occasions.isEmpty {
+                if !sorted.isEmpty {
                     ToolbarItem(placement: .navigationBarLeading) {
                         EditButton()
                     }
                 }
             }
-            .sheet(isPresented: $showAddSheet) {
-                AddEditSpecialOccasionView()
-            }
-            .sheet(item: $occasionToEdit) { occasion in
-                AddEditSpecialOccasionView(occasion: occasion)
+            .sheet(item: $activeSheet) { mode in
+                switch mode {
+                case .add:
+                    AddEditSpecialOccasionView()
+                case .edit(let occasion):
+                    AddEditSpecialOccasionView(occasion: occasion)
+                }
             }
         }
     }
 
     private func deleteOccasions(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(occasions[index])
+            modelContext.delete(sorted[index])
         }
         try? modelContext.save()
+    }
+}
+
+private struct OccasionRow: View {
+    let occasion: SpecialOccasion
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(occasion.name)
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            if occasion.recurrence == .none {
+                Text(occasion.date.formatted(date: .abbreviated, time: .omitted))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                if let next = occasion.nextOccurrence {
+                    Label("Next: \(next.formatted(date: .abbreviated, time: .omitted))", systemImage: "arrow.clockwise")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Text("Repeats \(occasion.recurrence.rawValue.lowercased())")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            if let watch = occasion.watch {
+                Text("\(watch.brand) \(watch.model)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            if !occasion.notes.isEmpty {
+                Text(occasion.notes)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
