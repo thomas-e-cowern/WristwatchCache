@@ -390,4 +390,206 @@ struct WristStatsLogicTests {
         let stats = WatchStatistics(watches: watches)
         #expect(stats.todaysWatch?.brand == "WatchB")
     }
+
+    // MARK: - wearsByDayOfWeek
+
+    @Test("wearsByDayOfWeek always returns exactly 7 entries")
+    func wearsByDayOfWeekAlwaysSevenEntries() {
+        #expect(WatchStatistics(watches: []).wearsByDayOfWeek.count == 7)
+        #expect(WatchStatistics(watches: [makeWatch(datesWorn: [daysAgo(1)])]).wearsByDayOfWeek.count == 7)
+    }
+
+    @Test("wearsByDayOfWeek weekday values are always 1 through 7 in order")
+    func wearsByDayOfWeekWeekdayValues() {
+        let stats = WatchStatistics(watches: [makeWatch(datesWorn: [daysAgo(1)])])
+        #expect(stats.wearsByDayOfWeek.map(\.weekday) == Array(1...7))
+    }
+
+    @Test("wearsByDayOfWeek counts are zero for empty collection")
+    func wearsByDayOfWeekZeroWhenEmpty() {
+        let stats = WatchStatistics(watches: [])
+        #expect(stats.wearsByDayOfWeek.allSatisfy { $0.count == 0 })
+    }
+
+    @Test("wearsByDayOfWeek increments count for the correct weekday")
+    func wearsByDayOfWeekCorrectDayCount() {
+        let today = Date()
+        let weekday = Calendar.current.component(.weekday, from: today)
+        let stats = WatchStatistics(watches: [makeWatch(datesWorn: [today])])
+        let entry = stats.wearsByDayOfWeek.first { $0.weekday == weekday }
+        #expect(entry?.count == 1)
+    }
+
+    @Test("wearsByDayOfWeek deduplicates multiple wears on the same day")
+    func wearsByDayOfWeekDeduplicatesSameDay() {
+        let today = Date()
+        let alsoToday = today.addingTimeInterval(3600)
+        let weekday = Calendar.current.component(.weekday, from: today)
+        let stats = WatchStatistics(watches: [makeWatch(datesWorn: [today, alsoToday])])
+        let entry = stats.wearsByDayOfWeek.first { $0.weekday == weekday }
+        #expect(entry?.count == 1)
+    }
+
+    // MARK: - activeRotationCount
+
+    @Test("activeRotationCount returns 0 for empty collection")
+    func activeRotationCountEmpty() {
+        #expect(WatchStatistics(watches: []).activeRotationCount == 0)
+    }
+
+    @Test("activeRotationCount returns 0 when all wears are older than 30 days")
+    func activeRotationCountOldWears() {
+        let watch = makeWatch(datesWorn: [daysAgo(31), daysAgo(60)])
+        #expect(WatchStatistics(watches: [watch]).activeRotationCount == 0)
+    }
+
+    @Test("activeRotationCount counts only watches worn within the last 30 days")
+    func activeRotationCountRecentWears() {
+        let watches = [
+            makeWatch(brand: "Recent1", datesWorn: [daysAgo(1)]),
+            makeWatch(brand: "Recent2", datesWorn: [daysAgo(15)]),
+            makeWatch(brand: "Old",     datesWorn: [daysAgo(31)]),
+        ]
+        #expect(WatchStatistics(watches: watches).activeRotationCount == 2)
+    }
+
+    @Test("activeRotationCount includes a watch worn 29 days ago")
+    func activeRotationCountBoundary() {
+        let watch = makeWatch(datesWorn: [daysAgo(29)])
+        #expect(WatchStatistics(watches: [watch]).activeRotationCount == 1)
+    }
+
+    @Test("activeRotationCount counts each qualifying watch once regardless of wear frequency")
+    func activeRotationCountDeduplicatesWatch() {
+        let watch = makeWatch(datesWorn: [daysAgo(1), daysAgo(2), daysAgo(3)])
+        #expect(WatchStatistics(watches: [watch]).activeRotationCount == 1)
+    }
+
+    // MARK: - currentStreak
+
+    @Test("currentStreak returns nil for empty collection")
+    func currentStreakEmpty() {
+        #expect(WatchStatistics(watches: []).currentStreak == nil)
+    }
+
+    @Test("currentStreak returns nil when most recent wear is two or more days ago")
+    func currentStreakStaleWear() {
+        let watch = makeWatch(datesWorn: [daysAgo(2)])
+        #expect(WatchStatistics(watches: [watch]).currentStreak == nil)
+    }
+
+    @Test("currentStreak returns 1 when watch was worn only today")
+    func currentStreakOneDay() {
+        let watch = makeWatch(brand: "Today", datesWorn: [Date()])
+        let streak = WatchStatistics(watches: [watch]).currentStreak
+        #expect(streak?.days == 1)
+        #expect(streak?.watch.brand == "Today")
+    }
+
+    @Test("currentStreak counts consecutive days ending today")
+    func currentStreakConsecutiveDays() {
+        let watch = makeWatch(brand: "Streak", datesWorn: [Date(), daysAgo(1), daysAgo(2), daysAgo(3)])
+        let streak = WatchStatistics(watches: [watch]).currentStreak
+        #expect(streak?.days == 4)
+    }
+
+    @Test("currentStreak stops counting at a gap in consecutive days")
+    func currentStreakStopsAtGap() {
+        // Worn today, yesterday, but NOT 2 days ago (gap), then 3 days ago
+        let watch = makeWatch(datesWorn: [Date(), daysAgo(1), daysAgo(3)])
+        #expect(WatchStatistics(watches: [watch]).currentStreak?.days == 2)
+    }
+
+    @Test("currentStreak is valid when most recent wear was yesterday")
+    func currentStreakYesterday() {
+        let watch = makeWatch(datesWorn: [daysAgo(1), daysAgo(2)])
+        let streak = WatchStatistics(watches: [watch]).currentStreak
+        #expect(streak?.days == 2)
+    }
+
+    // MARK: - longestUnworn
+
+    @Test("longestUnworn returns nil for empty collection")
+    func longestUnwornEmpty() {
+        #expect(WatchStatistics(watches: []).longestUnworn == nil)
+    }
+
+    @Test("longestUnworn returns nil when no available watches have ever been worn")
+    func longestUnwornNeverWorn() {
+        let watch = makeWatch(datesWorn: [])
+        #expect(WatchStatistics(watches: [watch]).longestUnworn == nil)
+    }
+
+    @Test("longestUnworn returns the available watch with the most days since last wear")
+    func longestUnwornFindsMax() {
+        let watches = [
+            makeWatch(brand: "Recent",  datesWorn: [daysAgo(5)]),
+            makeWatch(brand: "LongAgo", datesWorn: [daysAgo(30)]),
+            makeWatch(brand: "Medium",  datesWorn: [daysAgo(10)]),
+        ]
+        let result = WatchStatistics(watches: watches).longestUnworn
+        #expect(result?.watch.brand == "LongAgo")
+        #expect(result?.days == 30)
+    }
+
+    @Test("longestUnworn excludes non-available watches")
+    func longestUnwornExcludesUnavailable() {
+        let inService = Watch(
+            brand: "InService", model: "M",
+            style: .dress, movement: .automatic,
+            hasBracelet: false, watchStatus: .inService,
+            accuracyMethod: .manual, datesWorn: [daysAgo(100)]
+        )
+        let available = makeWatch(brand: "Available", datesWorn: [daysAgo(10)])
+        let result = WatchStatistics(watches: [inService, available]).longestUnworn
+        #expect(result?.watch.brand == "Available")
+    }
+
+    // MARK: - favoriteWatchByDayOfWeek
+
+    @Test("favoriteWatchByDayOfWeek returns empty when no watches have been worn")
+    func favoriteWatchByDayEmpty() {
+        let stats = WatchStatistics(watches: [makeWatch()])
+        #expect(stats.favoriteWatchByDayOfWeek.isEmpty)
+    }
+
+    @Test("favoriteWatchByDayOfWeek returns empty for empty collection")
+    func favoriteWatchByDayEmptyCollection() {
+        #expect(WatchStatistics(watches: []).favoriteWatchByDayOfWeek.isEmpty)
+    }
+
+    @Test("favoriteWatchByDayOfWeek returns an entry for a weekday that has wears")
+    func favoriteWatchByDayHasEntry() {
+        let today = Date()
+        let symbol = Calendar.current.shortWeekdaySymbols[Calendar.current.component(.weekday, from: today) - 1]
+        let watch = makeWatch(brand: "GoTo", datesWorn: [today])
+        let stats = WatchStatistics(watches: [watch])
+        let entry = stats.favoriteWatchByDayOfWeek.first { $0.symbol == symbol }
+        #expect(entry?.watch.brand == "GoTo")
+    }
+
+    @Test("favoriteWatchByDayOfWeek picks the most-worn watch for a given weekday")
+    func favoriteWatchByDayPicksMostWorn() {
+        let today = Date()
+        let lastWeek    = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: today)!
+        let twoWeeksAgo = Calendar.current.date(byAdding: .weekOfYear, value: -2, to: today)!
+        let symbol = Calendar.current.shortWeekdaySymbols[Calendar.current.component(.weekday, from: today) - 1]
+
+        let frequent   = makeWatch(brand: "Frequent",   datesWorn: [today, lastWeek, twoWeeksAgo])
+        let occasional = makeWatch(brand: "Occasional", datesWorn: [today])
+        let stats = WatchStatistics(watches: [frequent, occasional])
+
+        let entry = stats.favoriteWatchByDayOfWeek.first { $0.symbol == symbol }
+        #expect(entry?.watch.brand == "Frequent")
+    }
+
+    @Test("favoriteWatchByDayOfWeek symbol values match Calendar shortWeekdaySymbols")
+    func favoriteWatchByDaySymbolsAreValid() {
+        let watch = makeWatch(datesWorn: [Date(), daysAgo(1), daysAgo(2)])
+        let stats = WatchStatistics(watches: [watch])
+        let validSymbols = Set(Calendar.current.shortWeekdaySymbols)
+        for entry in stats.favoriteWatchByDayOfWeek {
+            #expect(validSymbols.contains(entry.symbol), "'\(entry.symbol)' is not a valid short weekday symbol")
+        }
+    }
 }

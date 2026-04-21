@@ -76,4 +76,24 @@ struct BrandViewTests {
     func caseSensitiveLookup() {
         #expect(BrandView.brandColor(for: "rolex") == Color.black)
     }
+
+    // MARK: - Accessibility Label
+
+    @Test("Initials differ from brand name for multi-word brands")
+    func initialsAreShorterForMultiWordBrands() {
+        let brands = ["Grand Seiko", "TAG Heuer", "Patek Philippe", "Dan Henry", "Oak & Oscar"]
+        for brand in brands {
+            let initials = BrandView.initials(for: brand)
+            #expect(initials != brand, "Expected initials to differ from full brand name for '\(brand)'")
+        }
+    }
+
+    @Test("Single-word brand initials are shorter than the brand name")
+    func singleWordInitialsShorterThanBrand() {
+        let brands = ["Rolex", "Omega", "Tudor", "Seiko", "Citizen"]
+        for brand in brands {
+            let initials = BrandView.initials(for: brand)
+            #expect(initials.count < brand.count, "Expected initials to be shorter than brand name for '\(brand)'")
+        }
+    }
 }
