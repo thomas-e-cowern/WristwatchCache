@@ -14,13 +14,14 @@ struct WatchRowView: View {
     var body: some View {
         HStack(spacing: 24) {
             BrandView(brand: watch.brand)
+                .accessibilityHidden(true)
             VStack(alignment: .leading) {
                 Text(watch.brand)
                     .font(.headline)
                 Text(watch.model)
-                    
             }
         }
+        .accessibilityElement(children: .combine)
     }
 }
 

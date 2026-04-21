@@ -18,6 +18,7 @@ struct BrandView: View {
             .frame(width: 44, height: 44)
             .background(Self.brandColor(for: brand))
             .clipShape(Circle())
+            .accessibilityLabel(brand)
     }
 
     /// Returns 1–3 character initials from a brand name

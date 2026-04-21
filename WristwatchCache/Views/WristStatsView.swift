@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 struct WristStatsView: View {
+
+    private let wearPatternsTip = WearPatternsTip()
     @Query(sort: \Watch.brand) private var watches: [Watch]
 
     private var stats: WatchStatistics {
@@ -64,6 +67,7 @@ struct WristStatsView: View {
                     Section("Most Worn") {
                         HStack(spacing: 12) {
                             BrandView(brand: top.brand)
+                                .accessibilityHidden(true)
                             VStack(alignment: .leading) {
                                 Text(top.brand)
                                     .font(.headline)
@@ -76,6 +80,8 @@ struct WristStatsView: View {
                                 .font(.title2.bold())
                                 .foregroundStyle(Color.accentColor)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(top.brand) \(top.model), worn \(WatchStatistics.wearCount(for: top)) times")
                     }
                 }
 
@@ -89,6 +95,7 @@ struct WristStatsView: View {
                         ForEach(wornToday) { watch in
                             HStack(spacing: 12) {
                                 BrandView(brand: watch.brand)
+                                    .accessibilityHidden(true)
                                 VStack(alignment: .leading) {
                                     Text(watch.brand)
                                         .font(.headline)
@@ -100,7 +107,10 @@ struct WristStatsView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                                     .font(.title3)
+                                    .accessibilityHidden(true)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(watch.brand) \(watch.model), worn today")
                         }
                     }
                 }
@@ -109,6 +119,9 @@ struct WristStatsView: View {
                 // Wear Patterns
                 if stats.totalWears > 0 {
                     Section("Wear Patterns") {
+                        TipView(wearPatternsTip, arrowEdge: .top)
+                            .listRowInsets(EdgeInsets())
+
                         // Day-of-week bar chart
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Days You Wear Watches")
@@ -121,6 +134,7 @@ struct WristStatsView: View {
                                     Text(entry.symbol)
                                         .font(.caption)
                                         .frame(width: 32, alignment: .trailing)
+                                        .accessibilityHidden(true)
                                     GeometryReader { geo in
                                         Capsule()
                                             .fill(Color.accentColor.opacity(0.8))
@@ -131,11 +145,15 @@ struct WristStatsView: View {
                                             )
                                     }
                                     .frame(height: 14)
+                                    .accessibilityHidden(true)
                                     Text("\(entry.count)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .frame(width: 28, alignment: .leading)
+                                        .accessibilityHidden(true)
                                 }
+                                .accessibilityElement(children: .ignore)
+                                .accessibilityLabel("\(Calendar.current.weekdaySymbols[entry.weekday - 1]): \(entry.count) \(entry.count == 1 ? "wear" : "wears")")
                             }
                         }
                         .padding(.vertical, 4)
@@ -168,7 +186,9 @@ struct WristStatsView: View {
                                     Text(entry.symbol)
                                         .font(.headline)
                                         .frame(width: 36)
+                                        .accessibilityHidden(true)
                                     BrandView(brand: entry.watch.brand)
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading) {
                                         Text(entry.watch.brand)
                                             .font(.subheadline)
@@ -177,6 +197,8 @@ struct WristStatsView: View {
                                             .foregroundStyle(.secondary)
                                     }
                                 }
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel("\(entry.symbol): \(entry.watch.brand) \(entry.watch.model)")
                             }
                         }
                     }
@@ -200,7 +222,9 @@ struct WristStatsView: View {
                                     .font(.headline)
                                     .foregroundStyle(.secondary)
                                     .frame(width: 44)
+                                    .accessibilityHidden(true)
                                 BrandView(brand: watch.brand)
+                                    .accessibilityHidden(true)
                                 VStack(alignment: .leading) {
                                     Text(watch.brand)
                                         .font(.headline)
@@ -213,6 +237,8 @@ struct WristStatsView: View {
                                     .font(.headline)
                                     .foregroundStyle(Color.accentColor)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Ranked \(index + 1): \(watch.brand) \(watch.model), \(WatchStatistics.wearCount(for: watch)) \(WatchStatistics.wearCount(for: watch) == 1 ? "wear" : "wears")")
                         }
                     }
                 }

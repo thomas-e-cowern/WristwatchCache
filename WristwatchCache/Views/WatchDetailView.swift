@@ -154,6 +154,7 @@ struct WatchDetailView: View {
                         .scaledToFit()
                         .frame(maxHeight: 250)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .accessibilityLabel("\(brand) \(modelName) photo")
                     Spacer()
                 }
             }
@@ -248,12 +249,15 @@ struct WatchDetailView: View {
                             }
                         }
                         .padding(.vertical, 2)
+                        .accessibilityElement(children: .combine)
                     }
+                    .accessibilityHint("Tap to edit this occasion")
                 }
             }
             Button("Add Special Occasion") {
                 activeOccasionSheet = .add
             }
+            .accessibilityHint("Opens the form to create a new special occasion for this watch")
         }
 
         Section {
@@ -262,13 +266,17 @@ struct WatchDetailView: View {
                 Spacer()
                 Image(systemName: favorite ? "heart.fill" : "heart")
                     .foregroundStyle(favorite ? .red : .secondary)
+                    .accessibilityHidden(true)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(favorite ? "Favorite: Yes" : "Favorite: No")
         }
 
         Section {
             Button("Delete Watch", role: .destructive) {
                 showDeleteConfirmation = true
             }
+            .accessibilityHint("Permanently removes this watch from your collection")
         }
     }
 

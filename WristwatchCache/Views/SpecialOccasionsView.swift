@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 struct SpecialOccasionsView: View {
+
+    private let recurringOccasionTip = RecurringOccasionTip()
     @Environment(\.modelContext) private var modelContext
     @Query private var occasions: [SpecialOccasion]
 
@@ -44,6 +47,7 @@ struct SpecialOccasionsView: View {
                         Button { activeSheet = .edit(occasion) } label: {
                             OccasionRow(occasion: occasion)
                         }
+                        .accessibilityHint("Tap to edit this occasion")
                     }
                     .onDelete(perform: deleteOccasions)
                 }
@@ -54,6 +58,9 @@ struct SpecialOccasionsView: View {
                     Button { activeSheet = .add } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add Special Occasion")
+                    .accessibilityHint("Opens the form to create a new special occasion")
+                    .popoverTip(recurringOccasionTip)
                 }
                 if !sorted.isEmpty {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -118,6 +125,7 @@ private struct OccasionRow: View {
             }
         }
         .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
     }
 }
 

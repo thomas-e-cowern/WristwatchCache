@@ -58,6 +58,7 @@ struct ArcTextImageView: View {
                         BrandView(brand: topText)
                             .scaleEffect((diameter - imagePadding) / 44 * 0.6)
                     }
+                    .accessibilityHidden(true)
             }
 
             // Arc text drawn in Canvas
@@ -79,8 +80,11 @@ struct ArcTextImageView: View {
             }
             .frame(width: diameter, height: diameter)
             .allowsHitTesting(false)
+            .accessibilityHidden(true)
         }
         .frame(width: diameter, height: diameter)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(topText) \(bottomText)")
     }
 
     // MARK: - Drawing helper

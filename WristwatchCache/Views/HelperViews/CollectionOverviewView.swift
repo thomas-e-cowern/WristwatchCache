@@ -22,19 +22,21 @@ struct CollectionOverviewView: View {
         } label: {
             LabeledContent("Total Watches", value: "\(watches.count)")
         }
+        .accessibilityHint("Opens the full watch list")
 
-        
         NavigationLink {
             WearHistoryView()
         } label: {
             LabeledContent("Total Wears Logged", value: "\(stats.totalWears)")
         }
-        
+        .accessibilityHint("Opens full wear history")
+
         NavigationLink {
             UnwornWatchView()
         } label: {
             LabeledContent("Never Worn", value: "\(stats.neverWorn.count)")
         }
+        .accessibilityHint("Opens the list of watches never worn")
 
         
     }

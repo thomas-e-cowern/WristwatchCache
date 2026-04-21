@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 struct OnWristView: View {
+
+    private let randomPickerTip = RandomPickerTip()
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Watch.brand) private var watches: [Watch]
@@ -77,6 +80,7 @@ struct OnWristView: View {
                 }
                 .buttonStyle(.bordered)
                 .padding(.horizontal)
+                .accessibilityHint("Opens your collection to select a different watch")
 
                 Button {
                     showRandomPicker = true
@@ -86,6 +90,8 @@ struct OnWristView: View {
                 }
                 .buttonStyle(.bordered)
                 .padding(.horizontal)
+                .accessibilityHint("Randomly selects a watch from your collection")
+                .popoverTip(randomPickerTip)
             }
             .padding(.vertical)
         }
@@ -101,6 +107,7 @@ struct OnWristView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Selection list

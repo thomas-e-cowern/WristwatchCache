@@ -16,6 +16,8 @@ struct AddWatchButton: View {
         } label: {
             Image(systemName: "plus")
         }
+        .accessibilityLabel("Add Watch")
+        .accessibilityHint("Opens the add watch form")
         .sheet(isPresented: $showAddWatch) {
             AddWatchView()
         }

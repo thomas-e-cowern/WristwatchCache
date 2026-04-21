@@ -62,6 +62,7 @@ struct RandomPickerView: View {
             Image(systemName: "dice")
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
 
             Text("I would like to wear a...")
                 .font(.title2.bold())
@@ -74,6 +75,7 @@ struct RandomPickerView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
+                .accessibilityHint("Filter random selection by watch style category")
 
                 Button {
                     filterMode = .movement
@@ -82,6 +84,7 @@ struct RandomPickerView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
+                .accessibilityHint("Filter random selection by movement type")
             }
             .padding(.horizontal, 40)
 
@@ -114,6 +117,7 @@ struct RandomPickerView: View {
                                 Circle()
                                     .fill(style.color)
                                     .frame(width: 10, height: 10)
+                                    .accessibilityHidden(true)
                                 Text(style.rawValue)
                                 Spacer()
                                 Text("\(count)")
@@ -121,6 +125,8 @@ struct RandomPickerView: View {
                             }
                         }
                         .tint(.primary)
+                        .accessibilityLabel("\(style.rawValue), \(count) \(count == 1 ? "watch" : "watches")")
+                        .accessibilityHint("Randomly picks a \(style.rawValue.lowercased()) watch")
                     }
                 case .movement:
                     ForEach(availableMovements, id: \.self) { movement in
@@ -132,6 +138,7 @@ struct RandomPickerView: View {
                                 Circle()
                                     .fill(movement.color)
                                     .frame(width: 10, height: 10)
+                                    .accessibilityHidden(true)
                                 Text(movement.rawValue)
                                 Spacer()
                                 Text("\(count)")
@@ -139,6 +146,8 @@ struct RandomPickerView: View {
                             }
                         }
                         .tint(.primary)
+                        .accessibilityLabel("\(movement.rawValue), \(count) \(count == 1 ? "watch" : "watches")")
+                        .accessibilityHint("Randomly picks a \(movement.rawValue.lowercased()) watch")
                     }
                 }
             }
@@ -183,6 +192,7 @@ struct RandomPickerView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
+                    .accessibilityHint("Logs this watch as worn today and closes the picker")
 
                     Button {
                         reroll()
@@ -191,6 +201,7 @@ struct RandomPickerView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
+                    .accessibilityHint("Picks another random watch from the same category")
                 }
                 .padding(.horizontal)
             }
@@ -208,6 +219,7 @@ struct RandomPickerView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Actions

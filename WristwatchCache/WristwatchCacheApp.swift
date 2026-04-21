@@ -7,9 +7,14 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 @main
 struct WristwatchCacheApp: App {
+
+    init() {
+        try? Tips.configure()
+    }
     @Environment(\.scenePhase) private var scenePhase
     @State private var container: ModelContainer = {
         do {

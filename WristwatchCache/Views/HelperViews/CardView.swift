@@ -32,6 +32,7 @@ struct CardView: View {
                         Image(uiImage: img)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityLabel("\(brand) \(model)")
                     } else {
                         // Placeholder
                         ArcTextImageView(topText: brand, bottomText: model, diameter: 250)
