@@ -59,14 +59,18 @@ struct WristStatsView: View {
 
                 // Watches by movement
                 Section("Movements I Own") {
-                    ScrollView(.horizontal) {
-                        LazyHStack(spacing: 10) {
-                            ForEach(stats.countByMovement, id: \.movement) { entry in
-                                MovementStatsView(label: entry.movement.rawValue, color: entry.movement.color, number: entry.count)
+                    if stats.countByMovement.count < 1 {
+                        Text("Please add some watches to see stats")
+                    } else {
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing: 10) {
+                                ForEach(stats.countByMovement, id: \.movement) { entry in
+                                    MovementStatsView(label: entry.movement.rawValue, color: entry.movement.color, number: entry.count)
+                                }
                             }
                         }
+                        .scrollIndicators(.hidden)
                     }
-                    .scrollIndicators(.hidden)
                 }
 
                 // Most worn watch
