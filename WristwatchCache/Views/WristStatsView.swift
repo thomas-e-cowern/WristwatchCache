@@ -43,14 +43,18 @@ struct WristStatsView: View {
                 
                 // Watches by style
                 Section("Styles I Own") {
-                    ScrollView(.horizontal) {
-                        LazyHStack(spacing: 10) {
-                            ForEach(stats.countByStyle, id: \.style) { entry in
-                                StyleStatsView(label: entry.style.rawValue, color: entry.style.color, number: entry.count)
+                    if stats.countByStyle.isEmpty {
+                        Text("You haven't added any Styles yet")
+                    } else {
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing: 10) {
+                                ForEach(stats.countByStyle, id: \.style) { entry in
+                                    StyleStatsView(label: entry.style.rawValue, color: entry.style.color, number: entry.count)
+                                }
                             }
                         }
+                        .scrollIndicators(.hidden)
                     }
-                    .scrollIndicators(.hidden)
                 }
 
                 // Watches by movement
