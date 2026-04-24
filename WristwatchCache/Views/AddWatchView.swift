@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import PhotosUI
 
 struct AddWatchView: View {
     @Environment(\.modelContext) private var modelContext
@@ -30,8 +29,6 @@ struct AddWatchView: View {
     // Service
     @State private var lastBatteryChange: Date? = nil
     @State private var lastServiced: Date? = nil
-    @State private var showBatteryPicker: Bool = false
-    @State private var showServicePicker: Bool = false
 
     // Status & accuracy
     @State private var watchStatus: WatchStatus = .available
@@ -40,13 +37,10 @@ struct AddWatchView: View {
 
     // Date hacked & wear
     @State private var dateHacked: Date? = nil
-    @State private var showDateHackedPicker = false
     @State private var datesWorn: [Date] = []
 
     // Photo (externalStorage)
     @State private var photoData: Data? = nil
-    @State private var photosPickerItems: [PhotosPickerItem] = []
-    @State private var showCamera = false
 
     // Favorite
     @State private var favorite: Bool = false
@@ -85,15 +79,8 @@ struct AddWatchView: View {
                 }
 
                 Section("Service") {
-                    Toggle("Set last battery change", isOn: $showBatteryPicker.animation())
-                    if showBatteryPicker {
-                        DatePicker("Last battery change", selection: Binding(get: { lastBatteryChange ?? Date() }, set: { lastBatteryChange = $0 }), displayedComponents: .date)
-                    }
-
-                    Toggle("Set last serviced", isOn: $showServicePicker.animation())
-                    if showServicePicker {
-                        DatePicker("Last serviced", selection: Binding(get: { lastServiced ?? Date() }, set: { lastServiced = $0 }), displayedComponents: .date)
-                    }
+                    OptionalDatePickerRow(toggleLabel: "Set last battery change", pickerLabel: "Last battery change", date: $lastBatteryChange)
+                    OptionalDatePickerRow(toggleLabel: "Set last serviced", pickerLabel: "Last serviced", date: $lastServiced)
                 }
 
                 Section("Status & Accuracy") {
@@ -109,10 +96,7 @@ struct AddWatchView: View {
                             Text(method.rawValue.capitalized).tag(method)
                         }
                     }
-                    Toggle("Date hacked (set)", isOn: $showDateHackedPicker.animation())
-                    if showDateHackedPicker {
-                        DatePicker("Date hacked", selection: Binding(get: { dateHacked ?? Date() }, set: { dateHacked = $0 }), displayedComponents: .date)
-                    }
+                    OptionalDatePickerRow(toggleLabel: "Date hacked (set)", pickerLabel: "Date hacked", date: $dateHacked)
                 }
 
                 Section("Wear history") {
@@ -134,45 +118,7 @@ struct AddWatchView: View {
                     }
                 }
 
-                Section("Photo") {
-                    if let data = photoData, let ui = UIImage(data: data) {
-                        Image(uiImage: ui)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-
-                    PhotosPicker(selection: $photosPickerItems, matching: .images, photoLibrary: .shared()) {
-                        Label("Choose from Library", systemImage: "photo.on.rectangle")
-                    }
-                    .onChange(of: photosPickerItems) {
-                        guard let item = photosPickerItems.first else { return }
-                        Task {
-                            if let data = try? await item.loadTransferable(type: Data.self) {
-                                await MainActor.run { photoData = data }
-                            }
-                        }
-                    }
-
-                    Button {
-                        showCamera = true
-                    } label: {
-                        Label("Take Photo", systemImage: "camera")
-                    }
-                    .sheet(isPresented: $showCamera) {
-                        CameraPicker { data in
-                            photoData = data
-                        }
-                        .ignoresSafeArea()
-                    }
-
-                    if photoData != nil {
-                        Button("Remove Photo", role: .destructive) {
-                            photoData = nil
-                        }
-                    }
-                }
+                PhotoPickerSection(photoData: $photoData)
 
                 Section {
                     Toggle("Favorite", isOn: $favorite)

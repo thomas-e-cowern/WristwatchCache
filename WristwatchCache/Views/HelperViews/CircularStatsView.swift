@@ -1,13 +1,11 @@
 //
-//  BrandStatsView.swift
+//  CircularStatsView.swift
 //  WristwatchCache
-//
-//  Created by Thomas Cowern on 4/7/26.
 //
 
 import SwiftUI
 
-struct BrandStatsView: View {
+struct CircularStatsView: View {
     let label: String
     let color: Color
     let number: Int
@@ -35,7 +33,10 @@ struct BrandStatsView: View {
     }
 }
 
+typealias BrandStatsView = CircularStatsView
+typealias StyleStatsView = CircularStatsView
+typealias MovementStatsView = CircularStatsView
 
 #Preview {
-    BrandStatsView(label: "Timex", color: BrandView.brandColor(for: "Timex"), number: 7)
+    CircularStatsView(label: "Timex", color: Color.brown, number: 7)
 }

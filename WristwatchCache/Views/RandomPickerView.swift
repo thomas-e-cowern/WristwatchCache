@@ -175,10 +175,10 @@ struct RandomPickerView: View {
                 .padding(.horizontal)
 
                 VStack(spacing: 8) {
-                    detailRow("Style", value: watch.style.rawValue)
-                    detailRow("Movement", value: watch.movement.rawValue)
+                    DetailRowView(label: "Style", value: watch.style.rawValue)
+                    DetailRowView(label: "Movement", value: watch.movement.rawValue)
                     if let diameter = watch.caseDiameter {
-                        detailRow("Case Size", value: "\(String(format: "%.0f", diameter))mm")
+                        DetailRowView(label: "Case Size", value: "\(String(format: "%.0f", diameter))mm")
                     }
                 }
                 .padding(.horizontal)
@@ -207,19 +207,6 @@ struct RandomPickerView: View {
             }
             .padding(.vertical)
         }
-    }
-
-    private func detailRow(_ label: String, value: String) -> some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(value)
-                .fontWeight(.medium)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Actions

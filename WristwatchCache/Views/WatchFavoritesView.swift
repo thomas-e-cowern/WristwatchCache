@@ -34,17 +34,10 @@ struct WatchFavoritesView: View {
                         }
                     }
                 }
-                .overlay {
-                    VStack {
-                        if favoriteWatches.isEmpty {
-                            ContentUnavailableView {
-                                Label("No watches in your collection", systemImage: "watch.analog")
-                            } description: {
-                                Text("You haven't addad any watches yet, and there's nothing to favor.  Please click above to add one")
-                            }
-                        }
-                    }
-                }
+                .emptyCollectionOverlay(
+                    isEmpty: favoriteWatches.isEmpty,
+                    message: "You haven't added any watches yet, and there's nothing to favor. Please click above to add one"
+                )
             }
             .navigationTitle("Favorites")
             .toolbar {

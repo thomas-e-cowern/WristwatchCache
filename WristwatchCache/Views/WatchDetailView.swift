@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import PhotosUI
 
 struct WatchDetailView: View {
     @Environment(\.modelContext) private var modelContext
@@ -30,21 +29,16 @@ struct WatchDetailView: View {
 
     @State private var lastBatteryChange: Date?
     @State private var lastServiced: Date?
-    @State private var showBatteryPicker: Bool = false
-    @State private var showServicePicker: Bool = false
 
     @State private var watchStatus: WatchStatus
     @State private var accuracyText: String
     @State private var accuracyMethod: AccuracyMethod
 
     @State private var dateHacked: Date?
-    @State private var showDateHackedPicker: Bool = false
 
     @State private var datesWorn: [Date]
 
     @State private var photoData: Data?
-    @State private var photosPickerItems: [PhotosPickerItem] = []
-    @State private var showCamera = false
 
     @State private var favorite: Bool
 
@@ -317,35 +311,8 @@ struct WatchDetailView: View {
         }
 
         Section("Service") {
-            Toggle("Set last battery change", isOn: Binding(
-                get: { lastBatteryChange != nil },
-                set: { newValue in
-                    showBatteryPicker = newValue
-                    if newValue && lastBatteryChange == nil { lastBatteryChange = Date() }
-                    if !newValue { lastBatteryChange = nil }
-                }
-            ))
-            if showBatteryPicker || lastBatteryChange != nil {
-                DatePicker("Last battery change", selection: Binding(
-                    get: { lastBatteryChange ?? Date() },
-                    set: { lastBatteryChange = $0 }
-                ), displayedComponents: .date)
-            }
-
-            Toggle("Set last serviced", isOn: Binding(
-                get: { lastServiced != nil },
-                set: { newValue in
-                    showServicePicker = newValue
-                    if newValue && lastServiced == nil { lastServiced = Date() }
-                    if !newValue { lastServiced = nil }
-                }
-            ))
-            if showServicePicker || lastServiced != nil {
-                DatePicker("Last serviced", selection: Binding(
-                    get: { lastServiced ?? Date() },
-                    set: { lastServiced = $0 }
-                ), displayedComponents: .date)
-            }
+            OptionalDatePickerRow(toggleLabel: "Set last battery change", pickerLabel: "Last battery change", date: $lastBatteryChange)
+            OptionalDatePickerRow(toggleLabel: "Set last serviced", pickerLabel: "Last serviced", date: $lastServiced)
         }
 
         Section("Status & Accuracy") {
@@ -361,20 +328,7 @@ struct WatchDetailView: View {
                     Text(method.rawValue).tag(method)
                 }
             }
-            Toggle("Date hacked (set)", isOn: Binding(
-                get: { dateHacked != nil },
-                set: { newValue in
-                    showDateHackedPicker = newValue
-                    if newValue && dateHacked == nil { dateHacked = Date() }
-                    if !newValue { dateHacked = nil }
-                }
-            ))
-            if showDateHackedPicker || dateHacked != nil {
-                DatePicker("Date hacked", selection: Binding(
-                    get: { dateHacked ?? Date() },
-                    set: { dateHacked = $0 }
-                ), displayedComponents: .date)
-            }
+            OptionalDatePickerRow(toggleLabel: "Date hacked (set)", pickerLabel: "Date hacked", date: $dateHacked)
         }
 
         Section("Wear history") {
@@ -391,43 +345,7 @@ struct WatchDetailView: View {
             }
         }
 
-        Section("Photo") {
-            if let data = photoData, let ui = UIImage(data: data) {
-                Image(uiImage: ui)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 200)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            PhotosPicker(selection: $photosPickerItems, matching: .images) {
-                Label("Choose from Library", systemImage: "photo.on.rectangle")
-            }
-            .onChange(of: photosPickerItems) {
-                guard let item = photosPickerItems.first else { return }
-                Task {
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        await MainActor.run { photoData = data }
-                    }
-                }
-            }
-
-            Button {
-                showCamera = true
-            } label: {
-                Label("Take Photo", systemImage: "camera")
-            }
-            .sheet(isPresented: $showCamera) {
-                CameraPicker { data in
-                    photoData = data
-                }
-                .ignoresSafeArea()
-            }
-
-            if photoData != nil {
-                Button("Remove Photo", role: .destructive) { photoData = nil }
-            }
-        }
+        PhotoPickerSection(photoData: $photoData)
 
         Section {
             Toggle("Favorite", isOn: $favorite)

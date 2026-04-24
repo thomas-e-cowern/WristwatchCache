@@ -27,17 +27,10 @@ struct WatchListView: View {
                         }
                     }
                 }
-                .overlay {
-                    VStack {
-                        if watches.isEmpty {
-                            ContentUnavailableView {
-                                Label("No watches in your collection", systemImage: "watch.analog")
-                            } description: {
-                                Text("You haven't addad any watches yet.  Please click above to add one")
-                            }
-                        }
-                    }
-                }
+                .emptyCollectionOverlay(
+                    isEmpty: watches.isEmpty,
+                    message: "You haven't added any watches yet. Please click above to add one"
+                )
             }
             .navigationTitle("Watch List")
             .toolbar {
